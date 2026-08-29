@@ -6,21 +6,29 @@ import app.models # register models
 
 def init_and_seed():
     print("Ensuring PostGIS extension is enabled...")
-    with engine.connect() as conn:
-        try:
+    try:
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
-            conn.commit()
-            print("PostGIS extension enabled.")
-        except Exception as e:
-            print(f"Notice: PostGIS extension check: {e}")
+            print("PostGIS extension enabled successfully.")
+    except Exception as e:
+        print(f"PostGIS extension warning: {e}")
 
     print("Initializing database tables...")
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database tables initialized successfully.")
+    except Exception as e:
+        print(f"Table creation error: {e}")
+        raise e
+
     db = SessionLocal()
     try:
         print("Seeding Pune prototype food system data...")
         seed_database(db, num_parcels=75)
         print("Seeding complete.")
+    except Exception as e:
+        print(f"Seeding error: {e}")
+        raise e
     finally:
         db.close()
 
