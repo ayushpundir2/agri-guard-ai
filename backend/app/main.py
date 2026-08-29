@@ -17,25 +17,40 @@ from app.api.ai import router as ai_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Enable PostGIS and create tables if not present
+    # 1. Ensure PostGIS extension is enabled
     try:
         with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis CASCADE;"))
+            print("PostGIS extension enabled.")
     except Exception as e:
         print(f"PostGIS extension notice: {e}")
 
+    # 2. Ensure Database tables are created
     try:
         Base.metadata.create_all(bind=engine)
-        db = SessionLocal()
-        # Seed if parcels empty
-        from app.models.food_system import AgriculturalParcel
-        if db.query(AgriculturalParcel).count() == 0:
-            print("Production database empty. Seeding Pune prototype dataset...")
-            seed_database(db, num_parcels=75)
-            print("Production database seeded successfully.")
-        db.close()
+        print("Base metadata tables created.")
     except Exception as e:
-        print(f"Database startup initialization notice: {e}")
+        print(f"Table creation notice: {e}")
+
+    # 3. Seed database if empty
+    db = SessionLocal()
+    try:
+        from app.models.food_system import Market
+        market_count = db.query(Market).count()
+        if market_count == 0:
+            print("Production database empty. Seeding Pune prototype food system dataset...")
+            seed_database(db, num_parcels=75)
+            print("Production database seeded successfully!")
+    except Exception as e:
+        print(f"Initial query check notice: {e}. Retrying table creation and seeding...")
+        try:
+            Base.metadata.create_all(bind=engine)
+            seed_database(db, num_parcels=75)
+            print("Production database tables and seed initialized successfully!")
+        except Exception as err:
+            print(f"Seed retry error: {err}")
+    finally:
+        db.close()
 
     yield
 
