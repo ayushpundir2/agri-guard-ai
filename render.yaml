@@ -1,7 +1,7 @@
 services:
   # 1. Backend Web Service (FastAPI)
   - type: web
-    name: agriguard-ai-backend
+    name: agriguard-ai-python-api
     env: python
     region: singapore
     plan: free
@@ -36,7 +36,7 @@ services:
       - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web
-          name: agriguard-ai-backend
+          name: agriguard-ai-python-api
           envVarKey: RENDER_EXTERNAL_URL
 
 databases:
