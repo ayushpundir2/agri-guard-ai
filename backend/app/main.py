@@ -45,13 +45,13 @@ async def lifespan(app: FastAPI):
         tables_err = str(e)
         print(f"Table creation error: {e}")
 
-    # 3. Seed database
+    # 3. Seed database if parcels < 50
     db = SessionLocal()
     try:
         from app.models.food_system import AgriculturalParcel
         parcel_count = db.query(AgriculturalParcel).count()
-        if parcel_count == 0:
-            print("Parcels empty. Seeding Pune prototype food system dataset...")
+        if parcel_count < 50:
+            print(f"Parcel count is {parcel_count} (<50). Seeding Pune prototype food system dataset...")
             seed_database(db, num_parcels=75)
             print("Production database seeded successfully!")
     except Exception as e:
