@@ -14,27 +14,24 @@ interface MapViewProps {
   zoom?: number;
 }
 
-// CARTO Dark Matter raster style specification for MapLibre
+// Public No-Key Esri World Dark Gray Canvas raster style specification for MapLibre
 const DEFAULT_DARK_MAP_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
-    'carto-dark': {
+    'esri-dark-canvas': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       ],
       tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      attribution: 'Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
     }
   },
   layers: [
     {
-      id: 'carto-dark-layer',
+      id: 'esri-dark-layer',
       type: 'raster',
-      source: 'carto-dark',
+      source: 'esri-dark-canvas',
       minzoom: 0,
       maxzoom: 19
     }
