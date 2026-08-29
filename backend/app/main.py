@@ -17,41 +17,47 @@ from app.api.ai import router as ai_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1. Enable PostGIS
     postgis_err = None
+    tables_err = None
+    seed_err = None
+
+    # 1. Enable PostGIS
     try:
         with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             try:
                 conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
             except Exception:
                 conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;"))
+            # Drop conflicting manual index if previously created
+            try:
+                conn.execute(text("DROP INDEX IF EXISTS idx_flood_events_geometry;"))
+            except Exception:
+                pass
             print("PostGIS extension created/verified.")
     except Exception as e:
         postgis_err = str(e)
         print(f"PostGIS extension error: {e}")
 
     # 2. Create tables
-    tables_err = None
     try:
         Base.metadata.create_all(bind=engine)
-        print("Database tables created.")
+        print("Database tables created successfully.")
     except Exception as e:
         tables_err = str(e)
         print(f"Table creation error: {e}")
 
     # 3. Seed database
-    seed_err = None
     db = SessionLocal()
     try:
         from app.models.food_system import Market
         market_count = db.query(Market).count()
         if market_count == 0:
-            print("Production database empty. Seeding Pune prototype dataset...")
+            print("Production database empty. Seeding Pune prototype food system dataset...")
             seed_database(db, num_parcels=75)
             print("Production database seeded successfully!")
     except Exception as e:
         seed_err = str(e)
-        print(f"Seed error: {e}")
+        print(f"Seed check notice: {e}. Retrying table creation and seeding...")
         try:
             Base.metadata.create_all(bind=engine)
             seed_database(db, num_parcels=75)
@@ -92,11 +98,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"error": str(exc), "type": type(exc).__name__, "db_init_log": init_log}
     )
-
-@app.get("/api/db-diagnostic")
-def db_diagnostic():
-    init_log = getattr(app.state, "db_init_log", {})
-    return {"init_log": init_log}
 
 # Include routers
 app.include_router(health_router, prefix="/api")

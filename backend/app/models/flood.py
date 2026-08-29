@@ -55,6 +55,5 @@ class ParcelFloodImpact(Base):
     parcel = relationship("AgriculturalParcel")
     flood_event = relationship("FloodEvent", back_populates="impacts")
 
-# Spatial and foreign key performance indexes
-Index("idx_flood_events_geometry", FloodEvent.geometry, postgresql_using="gist")
+# Foreign key performance indexes
 Index("idx_parcel_flood_impacts_parcel_event", ParcelFloodImpact.parcel_id, ParcelFloodImpact.flood_event_id)
