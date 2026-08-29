@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.models.flood import FloodEvent
+from app.models.food_system import AgriculturalParcel
+from app.models.flood import FloodEvent, ParcelFloodImpact
 from app.models.risk import FoodRiskAssessment, MarketRiskAssessment, RecoveryPriority, PriorityLevel
 from app.schemas.risk import (
     FoodRiskOverviewResponse,
@@ -134,8 +135,12 @@ def get_recovery_priorities(
         if crop_type and p.crop_type != crop_type:
             continue
 
-        # Get impact overlap percentage
-        imp = next((i for i in p.parcel_flood_impacts if i.flood_event_id == active_event.id), None)
+        # Get impact overlap percentage directly from database
+        imp = db.query(ParcelFloodImpact).filter(
+            ParcelFloodImpact.parcel_id == p.id,
+            ParcelFloodImpact.flood_event_id == active_event.id
+        ).first()
+
         overlap = imp.overlap_percentage if imp else r.flood_component
         ev_score = p.evidence.evidence_score if p.evidence else r.cultivation_component
 
@@ -170,7 +175,11 @@ def get_recovery_priority_detail(parcel_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Recovery priority record not found for parcel.")
 
     p = rec.parcel
-    imp = next((i for i in p.parcel_flood_impacts if i.flood_event_id == active_event.id), None)
+    imp = db.query(ParcelFloodImpact).filter(
+        ParcelFloodImpact.parcel_id == p.id,
+        ParcelFloodImpact.flood_event_id == active_event.id
+    ).first()
+
     overlap = imp.overlap_percentage if imp else rec.flood_component
     ev_score = p.evidence.evidence_score if p.evidence else rec.cultivation_component
 
