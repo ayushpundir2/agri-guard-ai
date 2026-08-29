@@ -34,10 +34,7 @@ services:
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: agriguard-ai-backend
-          property: url
+        sync: false
 
 databases:
   # 3. PostgreSQL Database with PostGIS
