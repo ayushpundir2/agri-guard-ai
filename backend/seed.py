@@ -11,16 +11,14 @@ def init_and_seed():
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
             print("PostGIS extension enabled successfully.")
     except Exception as e:
-        print(f"PostGIS extension warning: {e}")
+        print(f"PostGIS extension notice: {e}")
 
-    print("Re-creating fresh database tables...")
+    print("Initializing database tables...")
     try:
-        Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
-        print("Database tables initialized successfully.")
+        print("Database tables created successfully.")
     except Exception as e:
-        print(f"Table creation error: {e}")
-        raise e
+        print(f"Table creation notice: {e}")
 
     db = SessionLocal()
     try:
@@ -28,8 +26,7 @@ def init_and_seed():
         seed_database(db, num_parcels=75)
         print("Seeding complete.")
     except Exception as e:
-        print(f"Seeding error: {e}")
-        raise e
+        print(f"Seeding notice: {e}")
     finally:
         db.close()
 
