@@ -24,8 +24,20 @@ from app.schemas.food_system import (
     SystemMetricsResponse
 )
 from app.core.geospatial import geometry_to_geojson
+from app.services.seed_service import seed_database
 
 router = APIRouter()
+
+@router.post("/seed")
+def trigger_seed(db: Session = Depends(get_db)):
+    """Triggers database table initialization & seeding for prototype data."""
+    seed_database(db, num_parcels=75)
+    return {
+        "status": "seeded",
+        "parcels_count": db.query(AgriculturalParcel).count(),
+        "markets_count": db.query(Market).count(),
+        "flood_events_count": db.query(FloodEvent).count()
+    }
 
 @router.get("/parcels", response_model=List[ParcelResponse])
 def get_parcels(
