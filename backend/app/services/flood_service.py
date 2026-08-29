@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from shapely.geometry import shape
 from geoalchemy2.shape import to_shape
-from geoalchemy2.functions import ST_Area, ST_Transform, ST_Intersection, ST_Intersects
 from typing import Dict, Any, List
 
 from app.models.food_system import AgriculturalParcel, CultivationStatus
@@ -34,19 +33,29 @@ class FloodAnalysisService:
         db.query(ParcelFloodImpact).filter(ParcelFloodImpact.flood_event_id == event.id).delete()
         db.commit()
 
-        # 2. Perform spatial intersection query using PostGIS ST_Intersects & ST_Intersection
-        # Query parcels intersecting the flood geometry
-        intersecting_parcels = db.query(
-            AgriculturalParcel,
-            ST_Area(ST_Transform(AgriculturalParcel.geometry, 3857)).label("parcel_area_m2"),
-            ST_Area(ST_Transform(ST_Intersection(AgriculturalParcel.geometry, event.geometry), 3857)).label("intersection_area_m2")
-        ).filter(
-            ST_Intersects(AgriculturalParcel.geometry, event.geometry)
-        ).all()
+        # 2. Perform spatial intersection query using PostGIS ST_Intersects & ST_Intersection via SQL text
+        sql = text("""
+            SELECT 
+                p.id AS parcel_db_id,
+                ST_Area(ST_Transform(p.geometry, 3857)) AS parcel_area_m2,
+                ST_Area(ST_Transform(ST_Intersection(p.geometry, f.geometry), 3857)) AS intersection_area_m2
+            FROM agricultural_parcels p
+            JOIN flood_events f ON f.id = :event_id AND ST_Intersects(p.geometry, f.geometry)
+        """)
+
+        rows = db.execute(sql, {"event_id": event.id}).mappings().all()
 
         impact_records = []
-        for parcel, parcel_area, intersection_area in intersecting_parcels:
+        for row in rows:
+            parcel_db_id = row["parcel_db_id"]
+            parcel_area = float(row["parcel_area_m2"] or 0.0)
+            intersection_area = float(row["intersection_area_m2"] or 0.0)
+
             if parcel_area <= 0:
+                continue
+
+            parcel = db.query(AgriculturalParcel).filter(AgriculturalParcel.id == parcel_db_id).first()
+            if not parcel:
                 continue
 
             overlap_pct = round(min(100.0, (intersection_area / parcel_area) * 100.0), 1)
