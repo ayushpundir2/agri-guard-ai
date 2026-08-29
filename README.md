@@ -112,7 +112,7 @@ AgriGuard-AI is configured for multi-service deployment on Render using the incl
 ### Services Architecture on Render
 
 1. **Database:** PostgreSQL instance with PostGIS (`agriguard-db`)
-2. **Backend Web Service:** FastAPI Service (`agriguard-ai-backend`)
+2. **Backend Web Service:** FastAPI Service (`agriguard-ai-python-api`)
 3. **Frontend Web Service:** Next.js Service (`agriguard-ai-frontend`)
 
 ### Render Environment Variables
@@ -125,7 +125,7 @@ AgriGuard-AI is configured for multi-service deployment on Render using the incl
 - `GEMINI_API_KEY`: Server-side Gemini API key (set in Render Dashboard under secret environment variables)
 
 #### Frontend Environment Variables:
-- `NEXT_PUBLIC_API_URL`: Backend service URL e.g. `https://agriguard-ai-backend.onrender.com`
+- `NEXT_PUBLIC_API_URL`: Backend service URL e.g. `https://agriguard-ai-python-api.onrender.com`
 
 ---
 
