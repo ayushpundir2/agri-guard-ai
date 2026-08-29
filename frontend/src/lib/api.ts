@@ -9,6 +9,23 @@ export interface HealthCheckData {
   database_connected: boolean;
 }
 
+export interface UserProfile {
+  id: number;
+  email: string;
+  name: string | null;
+  avatar_url: string | null;
+  auth_provider: 'email' | 'google';
+  role: 'city_admin' | 'disaster_officer' | 'agricultural_officer' | 'analyst';
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AuthTokenResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+}
+
 export interface SystemMetrics {
   parcels_monitored: number;
   active_cultivation_count: number;
@@ -151,6 +168,103 @@ export interface AIAnalysisResult {
   calculated_at: string;
 }
 
+// Token Storage Helpers
+export function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('agriguard_auth_token');
+}
+
+export function setStoredToken(token: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('agriguard_auth_token', token);
+  }
+}
+
+export function removeStoredToken(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('agriguard_auth_token');
+  }
+}
+
+// Auth API Calls
+export async function signupEmail(email: string, password: string, name?: string): Promise<{ data?: AuthTokenResponse; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+      cache: 'no-store'
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      return { error: body.detail || 'Signup failed.' };
+    }
+    setStoredToken(body.access_token);
+    return { data: body };
+  } catch (err: any) {
+    return { error: err.message || 'Connection error during signup.' };
+  }
+}
+
+export async function loginEmail(email: string, password: string): Promise<{ data?: AuthTokenResponse; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      cache: 'no-store'
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      return { error: body.detail || 'Login failed.' };
+    }
+    setStoredToken(body.access_token);
+    return { data: body };
+  } catch (err: any) {
+    return { error: err.message || 'Connection error during login.' };
+  }
+}
+
+export async function googleAuth(idToken: string): Promise<{ data?: AuthTokenResponse; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_token: idToken }),
+      cache: 'no-store'
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      return { error: body.detail || 'Google authentication failed.' };
+    }
+    setStoredToken(body.access_token);
+    return { data: body };
+  } catch (err: any) {
+    return { error: err.message || 'Connection error during Google auth.' };
+  }
+}
+
+export async function fetchAuthUser(): Promise<UserProfile | null> {
+  const token = getStoredToken();
+  if (!token) return null;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store'
+    });
+    if (!res.ok) {
+      removeStoredToken();
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch authenticated user:', err);
+    return null;
+  }
+}
+
+// System APIs
 export async function fetchBackendHealth(): Promise<HealthCheckData | null> {
   try {
     const res = await fetch(`${API_BASE}/api/health`, { cache: 'no-store' });

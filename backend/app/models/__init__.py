@@ -19,6 +19,11 @@ from app.models.risk import (
     RiskLevel,
     PriorityLevel
 )
+from app.models.user import (
+    User,
+    UserRole,
+    AuthProvider
+)
 
 __all__ = [
     "AgriculturalParcel",
@@ -35,5 +40,8 @@ __all__ = [
     "MarketRiskAssessment",
     "RecoveryPriority",
     "RiskLevel",
-    "PriorityLevel"
+    "PriorityLevel",
+    "User",
+    "UserRole",
+    "AuthProvider"
 ]

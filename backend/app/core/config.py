@@ -34,6 +34,15 @@ class Settings(BaseSettings):
         if v and v.startswith("postgres://"):
             return v.replace("postgres://", "postgresql://", 1)
         return v
+
+    # Authentication & Security
+    SECRET_KEY: str = "agriguard_secret_jwt_key_change_in_production_2026"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours
+    
+    # Google OAuth (Server-side configuration)
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
     
     # Target region
     PROTOTYPE_CITY: str = "Pune, Maharashtra, India"

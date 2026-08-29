@@ -14,6 +14,7 @@ from app.api.food_system import router as food_system_router
 from app.api.flood import router as flood_router
 from app.api.risk import router as risk_router
 from app.api.ai import router as ai_router
+from app.api.auth import router as auth_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -104,6 +105,7 @@ app.include_router(food_system_router, prefix="/api")
 app.include_router(flood_router, prefix="/api")
 app.include_router(risk_router, prefix="/api")
 app.include_router(ai_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 @app.get("/")
 def root():
