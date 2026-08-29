@@ -24,7 +24,7 @@ class FoodRiskAssessment(Base):
     flood_event_id = Column(Integer, ForeignKey("flood_events.id", ondelete="CASCADE"), nullable=False, index=True)
     
     overall_risk_score = Column(Float, nullable=False) # 0-100
-    risk_level = Column(Enum(RiskLevel), nullable=False)
+    risk_level = Column(Enum(RiskLevel, native_enum=False), nullable=False)
     affected_production_tons = Column(Float, nullable=False)
     affected_market_count = Column(Integer, nullable=False)
     affected_parcel_count = Column(Integer, nullable=False)
@@ -43,7 +43,7 @@ class MarketRiskAssessment(Base):
     market_id = Column(Integer, ForeignKey("markets.id", ondelete="CASCADE"), nullable=False, index=True)
 
     exposure_score = Column(Float, nullable=False) # 0-100
-    exposure_level = Column(Enum(RiskLevel), nullable=False)
+    exposure_level = Column(Enum(RiskLevel, native_enum=False), nullable=False)
     affected_supply_tons = Column(Float, nullable=False)
     affected_parcels_count = Column(Integer, nullable=False)
 
@@ -62,7 +62,7 @@ class RecoveryPriority(Base):
     parcel_id = Column(Integer, ForeignKey("agricultural_parcels.id", ondelete="CASCADE"), nullable=False, index=True)
 
     priority_score = Column(Float, nullable=False) # 0-100
-    priority_level = Column(Enum(PriorityLevel), nullable=False)
+    priority_level = Column(Enum(PriorityLevel, native_enum=False), nullable=False)
 
     # Component breakdown scores (0-100)
     flood_component = Column(Float, nullable=False)

@@ -25,7 +25,7 @@ class FloodEvent(Base):
     event_id = Column(String(50), unique=True, nullable=False, index=True)
     name = Column(String(200), nullable=False)
     geometry = Column(Geometry("POLYGON", srid=4326), nullable=False)
-    severity = Column(Enum(FloodSeverity), default=FloodSeverity.MODERATE, nullable=False)
+    severity = Column(Enum(FloodSeverity, native_enum=False), default=FloodSeverity.MODERATE, nullable=False)
     event_date = Column(DateTime(timezone=True), nullable=False)
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=False, nullable=False, index=True)
@@ -46,7 +46,7 @@ class ParcelFloodImpact(Base):
 
     overlap_percentage = Column(Float, nullable=False)  # 0.0 to 100.0
     affected_area_acres = Column(Float, nullable=False)
-    exposure_level = Column(Enum(ExposureLevel), nullable=False)
+    exposure_level = Column(Enum(ExposureLevel, native_enum=False), nullable=False)
     estimated_crop_damage = Column(Float, nullable=False)  # 0.0 to 100.0
 
     calculated_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -24,7 +24,7 @@ class AgriculturalParcel(Base):
     geometry = Column(Geometry("POLYGON", srid=4326), nullable=False)
     area_acres = Column(Float, nullable=False)
     crop_type = Column(String(100), nullable=False, index=True)
-    cultivation_status = Column(Enum(CultivationStatus), default=CultivationStatus.ACTIVE, nullable=False, index=True)
+    cultivation_status = Column(Enum(CultivationStatus, native_enum=False), default=CultivationStatus.ACTIVE, nullable=False, index=True)
     
     crop_activity_score = Column(Float, default=0.0)
     historical_activity_score = Column(Float, default=0.0)
@@ -89,7 +89,7 @@ class CultivationEvidence(Base):
     parcel_activity_score = Column(Float, nullable=False, default=70.0)
     
     evidence_score = Column(Float, nullable=False) # Normalized 0-100
-    evidence_status = Column(Enum(EvidenceStatus), nullable=False)
+    evidence_status = Column(Enum(EvidenceStatus, native_enum=False), nullable=False)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
