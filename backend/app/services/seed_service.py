@@ -1,7 +1,7 @@
 import random
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 from geoalchemy2.shape import from_shape
 
 from app.models.food_system import (
@@ -83,18 +83,21 @@ def seed_database(db: Session, num_parcels: int = 75):
     random.seed(42)
 
     # Clear existing
-    db.query(ParcelFloodImpact).delete()
-    db.query(FloodEvent).delete()
-    db.query(MarketLink).delete()
-    db.query(CultivationEvidence).delete()
-    db.query(AgriculturalParcel).delete()
-    db.query(Market).delete()
-    db.commit()
+    try:
+        db.query(ParcelFloodImpact).delete()
+        db.query(FloodEvent).delete()
+        db.query(MarketLink).delete()
+        db.query(CultivationEvidence).delete()
+        db.query(AgriculturalParcel).delete()
+        db.query(Market).delete()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Clear tables exception (proceeding to insert): {e}")
 
     # 1. Create Markets
     db_markets = []
     for m in PUNE_MARKETS:
-        from shapely.geometry import Point
         point = Point(m["lon"], m["lat"])
         market_obj = Market(
             market_id=m["market_id"],
@@ -110,6 +113,8 @@ def seed_database(db: Session, num_parcels: int = 75):
         db_markets.append(market_obj)
 
     db.commit()
+    for m in db_markets:
+        db.refresh(m)
 
     # Clusters around Pune agricultural belt
     cluster_centers = [
@@ -123,7 +128,7 @@ def seed_database(db: Session, num_parcels: int = 75):
 
     # 2. Create Parcels
     db_parcels = []
-    statuses = [CultivationStatus.ACTIVE, CultivationStatus.ACTIVE, CultivationStatus.ACTIVE, CultivationStatus.INACTIVE, CultivationStatus.UNCERTAIN]
+    statuses = ["active", "active", "active", "inactive", "uncertain"]
 
     for i in range(1, num_parcels + 1):
         cluster_lat, cluster_lon = random.choice(cluster_centers)
@@ -135,7 +140,7 @@ def seed_database(db: Session, num_parcels: int = 75):
         crop = random.choice(CROPS)
         status = random.choice(statuses)
 
-        crop_activity = round(random.uniform(60.0, 98.0), 1) if status == CultivationStatus.ACTIVE else round(random.uniform(10.0, 40.0), 1)
+        crop_activity = round(random.uniform(60.0, 98.0), 1) if status == "active" else round(random.uniform(10.0, 40.0), 1)
         hist_activity = round(random.uniform(50.0, 95.0), 1)
         market_linkage_score = round(random.uniform(40.0, 90.0), 1)
         admin_signal = round(random.uniform(30.0, 85.0), 1)
@@ -174,7 +179,7 @@ def seed_database(db: Session, num_parcels: int = 75):
             administrative_signal_score=parcel.administrative_signal_score,
             parcel_activity_score=75.0,
             evidence_score=evidence_score,
-            evidence_status=evidence_status
+            evidence_status=evidence_status.value if hasattr(evidence_status, "value") else str(evidence_status)
         )
         db.add(evidence)
 
@@ -198,8 +203,7 @@ def seed_database(db: Session, num_parcels: int = 75):
 
     db.commit()
 
-    # 4. Create 2 Prototype Flood Scenarios intersecting generated parcels
-    # Scenario 1: Eastern Pune Flash Flood (Haveli/Shirur cluster)
+    # 4. Create 2 Prototype Flood Scenarios
     flood_poly_1 = Polygon([
         (73.98, 18.35),
         (74.25, 18.35),
@@ -212,13 +216,12 @@ def seed_database(db: Session, num_parcels: int = 75):
         event_id="FLD-PNE-01",
         name="Eastern Pune Riverine Flash Flood",
         geometry=from_shape(flood_poly_1, srid=4326),
-        severity=FloodSeverity.SEVERE,
+        severity="severe",
         event_date=datetime.now(timezone.utc),
         description="Illustrative severe flash flood event affecting Eastern Pune peri-urban agricultural clusters.",
         is_active=False
     )
 
-    # Scenario 2: Northern Agricultural Belt Flood (Chakan/Manchar cluster)
     flood_poly_2 = Polygon([
         (73.80, 18.75),
         (74.02, 18.75),
@@ -231,7 +234,7 @@ def seed_database(db: Session, num_parcels: int = 75):
         event_id="FLD-PNE-02",
         name="Northern Agricultural Belt Monsoon Inundation",
         geometry=from_shape(flood_poly_2, srid=4326),
-        severity=FloodSeverity.HIGH,
+        severity="high",
         event_date=datetime.now(timezone.utc),
         description="Illustrative monsoon inundation scenario along the Northern Pune horticulture corridor.",
         is_active=False
