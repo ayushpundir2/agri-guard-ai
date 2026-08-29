@@ -37,8 +37,8 @@ class FloodAnalysisService:
         # Query parcels intersecting the flood geometry
         intersecting_parcels = db.query(
             AgriculturalParcel,
-            cast(func.ST_Area(func.ST_Transform(AgriculturalParcel.geometry, 3857)), Float).label("parcel_area_m2"),
-            cast(func.ST_Area(func.ST_Transform(func.ST_Intersection(AgriculturalParcel.geometry, event.geometry), 3857)), Float).label("intersection_area_m2")
+            cast(func.ST_Area(func.ST_Transform(AgriculturalParcel.geometry, 3857)), Float()).label("parcel_area_m2"),
+            cast(func.ST_Area(func.ST_Transform(func.ST_Intersection(AgriculturalParcel.geometry, event.geometry), 3857)), Float()).label("intersection_area_m2")
         ).filter(
             func.ST_Intersects(AgriculturalParcel.geometry, event.geometry)
         ).all()
