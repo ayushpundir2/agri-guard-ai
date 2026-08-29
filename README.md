@@ -43,7 +43,7 @@ agri-guard-ai/
 │   │   ├── components/     # React UI components (MapView, RiskGauge, Analyst, etc.)
 │   │   └── lib/            # Typed API client
 │   ├── package.json        # Node dependencies & scripts
-│   ├── tsconfig.json font   # TypeScript configuration
+│   ├── tsconfig.json       # TypeScript configuration
 │   └── tailwind.config.ts  # Tailwind CSS configuration
 ├── docker-compose.yml      # PostGIS local database container setup
 ├── .env.example            # Environment template
