@@ -14,19 +14,17 @@ interface MapViewProps {
   zoom?: number;
 }
 
-// Fallback CARTO Dark Matter vector/raster style for MapLibre
-const DEFAULT_DARK_MAP_STYLE = {
+// Robust CARTO Dark Matter raster style for MapLibre
+const DEFAULT_DARK_MAP_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
     'carto-dark': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
       ],
       tileSize: 256,
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     }
   },
   layers: [
@@ -50,142 +48,169 @@ export default function MapView({
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const geoJsonDataRef = useRef<any>(geoJsonData);
 
   const [showFarms, setShowFarms] = useState(true);
   const [showMarkets, setShowMarkets] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
   const [showFlood, setShowFlood] = useState(true);
 
+  // Keep geoJsonDataRef current so map 'load' event uses latest data
+  useEffect(() => {
+    geoJsonDataRef.current = geoJsonData;
+  }, [geoJsonData]);
+
+  // Map Initialization
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
     const customStyle = process.env.NEXT_PUBLIC_MAP_STYLE;
     const mapStyle = customStyle || DEFAULT_DARK_MAP_STYLE;
 
-    map.current = new maplibregl.Map({
+    const mapInstance = new maplibregl.Map({
       container: mapContainer.current,
       style: mapStyle as any,
       center: [lng, lat],
       zoom: zoom,
     });
 
-    map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.current = mapInstance;
 
-    map.current.on('load', () => {
+    mapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    mapInstance.on('load', () => {
       if (!map.current) return;
 
-      map.current.addSource('food-system', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] }
-      });
+      const currentData = geoJsonDataRef.current || { type: 'FeatureCollection', features: [] };
 
-      // 1. Flood Scenario Layer Fill
-      map.current.addLayer({
-        id: 'flood-polygon-fill-layer',
-        type: 'fill',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'flood_event'],
-        paint: {
-          'fill-color': '#06b6d4',
-          'fill-opacity': 0.35
-        }
-      });
+      // Add GeoJSON Source
+      if (!map.current.getSource('food-system')) {
+        map.current.addSource('food-system', {
+          type: 'geojson',
+          data: currentData
+        });
+      }
+
+      // 1. Flood Scenario Polygon Fill Layer
+      if (!map.current.getLayer('flood-polygon-fill-layer')) {
+        map.current.addLayer({
+          id: 'flood-polygon-fill-layer',
+          type: 'fill',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'flood_event'],
+          paint: {
+            'fill-color': '#06b6d4',
+            'fill-opacity': 0.35
+          }
+        });
+      }
 
       // 2. Flood Scenario Outline
-      map.current.addLayer({
-        id: 'flood-polygon-outline-layer',
-        type: 'line',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'flood_event'],
-        paint: {
-          'line-color': '#0891b2',
-          'line-width': 2.5,
-          'line-dasharray': [3, 2]
-        }
-      });
+      if (!map.current.getLayer('flood-polygon-outline-layer')) {
+        map.current.addLayer({
+          id: 'flood-polygon-outline-layer',
+          type: 'line',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'flood_event'],
+          paint: {
+            'line-color': '#0891b2',
+            'line-width': 2.5,
+            'line-dasharray': [3, 2]
+          }
+        });
+      }
 
       // 3. Supply Line Layer
-      map.current.addLayer({
-        id: 'supply-links-layer',
-        type: 'line',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'market_link'],
-        paint: {
-          'line-color': '#f59e0b',
-          'line-width': 1.5,
-          'line-opacity': 0.5,
-          'line-dasharray': [2, 2]
-        }
-      });
+      if (!map.current.getLayer('supply-links-layer')) {
+        map.current.addLayer({
+          id: 'supply-links-layer',
+          type: 'line',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'market_link'],
+          paint: {
+            'line-color': '#f59e0b',
+            'line-width': 1.5,
+            'line-opacity': 0.5,
+            'line-dasharray': [2, 2]
+          }
+        });
+      }
 
-      // 4. Agricultural Parcels Polygon Fill Layer
-      map.current.addLayer({
-        id: 'parcels-fill-layer',
-        type: 'fill',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'parcel'],
-        paint: {
-          'fill-color': [
-            'case',
-            ['!=', ['get', 'recovery_priority_level'], 'NONE'],
-            [
-              'match',
-              ['get', 'recovery_priority_level'],
-              'CRITICAL', '#dc2626',   // Red
-              'HIGH', '#f97316',     // Orange
-              'MODERATE', '#f59e0b', // Amber
-              '#10b981'              // Green for Low
-            ],
-            [
+      // 4. Agricultural Parcels Fill Layer
+      if (!map.current.getLayer('parcels-fill-layer')) {
+        map.current.addLayer({
+          id: 'parcels-fill-layer',
+          type: 'fill',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'parcel'],
+          paint: {
+            'fill-color': [
               'case',
-              ['boolean', ['get', 'is_affected_by_flood'], false],
+              ['!=', ['get', 'recovery_priority_level'], 'NONE'],
               [
                 'match',
-                ['get', 'exposure_level'],
-                'SEVERE', '#dc2626',
-                'HIGH', '#f97316',
-                'MODERATE', '#f59e0b',
-                '#06b6d4'
+                ['get', 'recovery_priority_level'],
+                'CRITICAL', '#dc2626',   // Red
+                'HIGH', '#f97316',     // Orange
+                'MODERATE', '#f59e0b', // Amber
+                '#10b981'              // Green for Low
               ],
               [
-                'match',
-                ['get', 'cultivation_status'],
-                'active', '#10b981',
-                'inactive', '#ef4444',
-                '#f59e0b'
+                'case',
+                ['boolean', ['get', 'is_affected_by_flood'], false],
+                [
+                  'match',
+                  ['get', 'exposure_level'],
+                  'SEVERE', '#dc2626',
+                  'HIGH', '#f97316',
+                  'MODERATE', '#f59e0b',
+                  '#06b6d4'
+                ],
+                [
+                  'match',
+                  ['get', 'cultivation_status'],
+                  'active', '#10b981',
+                  'inactive', '#ef4444',
+                  '#f59e0b'
+                ]
               ]
-            ]
-          ],
-          'fill-opacity': 0.65
-        }
-      });
+            ],
+            'fill-opacity': 0.65
+          }
+        });
+      }
 
       // 5. Agricultural Parcels Outline Layer
-      map.current.addLayer({
-        id: 'parcels-outline-layer',
-        type: 'line',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'parcel'],
-        paint: {
-          'line-color': '#064e3b',
-          'line-width': 1.2
-        }
-      });
+      if (!map.current.getLayer('parcels-outline-layer')) {
+        map.current.addLayer({
+          id: 'parcels-outline-layer',
+          type: 'line',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'parcel'],
+          paint: {
+            'line-color': '#064e3b',
+            'line-width': 1.2
+          }
+        });
+      }
 
       // 6. Wholesale Market Points
-      map.current.addLayer({
-        id: 'markets-point-layer',
-        type: 'circle',
-        source: 'food-system',
-        filter: ['==', ['get', 'feature_type'], 'market'],
-        paint: {
-          'circle-radius': 9,
-          'circle-color': '#f59e0b',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
+      if (!map.current.getLayer('markets-point-layer')) {
+        map.current.addLayer({
+          id: 'markets-point-layer',
+          type: 'circle',
+          source: 'food-system',
+          filter: ['==', ['get', 'feature_type'], 'market'],
+          paint: {
+            'circle-radius': 9,
+            'circle-color': '#f59e0b',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+      }
 
+      // Click Events
       map.current.on('click', 'parcels-fill-layer', (e) => {
         if (e.features && e.features[0]) {
           const parcelId = e.features[0].properties.parcel_id;
@@ -207,22 +232,40 @@ export default function MapView({
       map.current.on('mouseleave', 'parcels-fill-layer', resetCursor);
       map.current.on('mouseenter', 'markets-point-layer', setCursorPointer);
       map.current.on('mouseleave', 'markets-point-layer', resetCursor);
+
+      // Trigger map resize check
+      mapInstance.resize();
     });
 
+    // ResizeObserver to handle container layout changes
+    const resizeObserver = new ResizeObserver(() => {
+      if (map.current) {
+        map.current.resize();
+      }
+    });
+
+    if (mapContainer.current) {
+      resizeObserver.observe(mapContainer.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
       map.current?.remove();
       map.current = null;
     };
   }, [lng, lat, zoom, onSelectParcel, onSelectMarket]);
 
+  // Update GeoJSON source when data changes
   useEffect(() => {
     if (!map.current || !geoJsonData) return;
+
     const source = map.current.getSource('food-system') as maplibregl.GeoJSONSource;
     if (source) {
       source.setData(geoJsonData);
     }
   }, [geoJsonData]);
 
+  // Layer visibility toggles
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded()) return;
 
@@ -243,11 +286,11 @@ export default function MapView({
   }, [showFarms, showMarkets, showConnections, showFlood]);
 
   return (
-    <div className="relative w-full h-full min-h-[450px] rounded-xl overflow-hidden border border-slate-800 shadow-xl">
-      <div ref={mapContainer} className="absolute inset-0" />
+    <div className="relative w-full h-full min-h-[480px] rounded-2xl overflow-hidden border border-slate-800/80 shadow-2xl bg-slate-950">
+      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
 
       {/* Map Layer Controls */}
-      <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur border border-slate-800 p-3 rounded-lg shadow-lg z-10 text-xs font-mono space-y-2">
+      <div className="absolute top-3 left-3 bg-slate-950/90 backdrop-blur border border-slate-800 p-3 rounded-xl shadow-2xl z-10 text-xs font-mono space-y-2">
         <div className="flex items-center gap-1.5 text-slate-300 font-bold border-b border-slate-800 pb-1.5 mb-2">
           <Layers className="w-3.5 h-3.5" />
           <span>Layer Controls</span>
