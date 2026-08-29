@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text, Float
+from sqlalchemy import func, text, Float, cast
 from shapely.geometry import shape
 from geoalchemy2.shape import to_shape
 from typing import Dict, Any, List
@@ -37,8 +37,8 @@ class FloodAnalysisService:
         # Query parcels intersecting the flood geometry
         intersecting_parcels = db.query(
             AgriculturalParcel,
-            func.ST_Area(func.ST_Transform(AgriculturalParcel.geometry, 3857), type_=Float()).label("parcel_area_m2"),
-            func.ST_Area(func.ST_Transform(func.ST_Intersection(AgriculturalParcel.geometry, event.geometry), 3857), type_=Float()).label("intersection_area_m2")
+            cast(func.ST_Area(func.ST_Transform(AgriculturalParcel.geometry, 3857)), Float).label("parcel_area_m2"),
+            cast(func.ST_Area(func.ST_Transform(func.ST_Intersection(AgriculturalParcel.geometry, event.geometry), 3857)), Float).label("intersection_area_m2")
         ).filter(
             func.ST_Intersects(AgriculturalParcel.geometry, event.geometry)
         ).all()
