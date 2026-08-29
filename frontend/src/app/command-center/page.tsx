@@ -1,19 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopHeader from '@/components/TopHeader';
-import MapView from '@/components/MapView';
+import Link from 'next/link';
+import AppShell from '@/components/AppShell';
 import MetricsBar from '@/components/MetricsBar';
 import DisasterMetricsBar from '@/components/DisasterMetricsBar';
 import FloodScenarioControl from '@/components/FloodScenarioControl';
 import CityRiskMetricsBar from '@/components/CityRiskMetricsBar';
-import MarketRiskTable from '@/components/MarketRiskTable';
-import RecoveryPriorityList from '@/components/RecoveryPriorityList';
+import MapView from '@/components/MapView';
 import ParcelDetailPanel from '@/components/ParcelDetailPanel';
 import MarketDetailPanel from '@/components/MarketDetailPanel';
-import GeminiAnalystPanel from '@/components/GeminiAnalystPanel';
-import CityActionSection from '@/components/CityActionSection';
 import {
   fetchSystemMetrics,
   fetchMapOverview,
@@ -25,28 +21,21 @@ import {
   fetchFloodOverview,
   analyzeFoodRisk,
   fetchRiskOverview,
-  fetchMarketRisks,
-  fetchRecoveryPriorities,
   SystemMetrics,
   ParcelDetail,
   MarketDetail,
   FloodEvent,
   FloodOverview,
-  FoodRiskOverview,
-  MarketRisk,
-  RecoveryPriority
+  FoodRiskOverview
 } from '@/lib/api';
+import { MapPin, Store, ShieldAlert, ListOrdered, Bot, Activity, ArrowRight } from 'lucide-react';
 
 export default function CommandCenterPage() {
-  const [activeSection, setActiveSection] = useState<string>('overview');
-
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [mapGeoJson, setMapGeoJson] = useState<any>(null);
   const [scenarios, setScenarios] = useState<FloodEvent[]>([]);
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
   const [riskOverview, setRiskOverview] = useState<FoodRiskOverview | null>(null);
-  const [marketRisks, setMarketRisks] = useState<MarketRisk[]>([]);
-  const [recoveryPriorities, setRecoveryPriorities] = useState<RecoveryPriority[]>([]);
 
   const [simulating, setSimulating] = useState<boolean>(false);
   const [analyzingRisk, setAnalyzingRisk] = useState<boolean>(false);
@@ -55,7 +44,7 @@ export default function CommandCenterPage() {
   const [selectedMarket, setSelectedMarket] = useState<MarketDetail | null>(null);
 
   useEffect(() => {
-    async function loadInitialData() {
+    async function loadData() {
       const [mRes, geoRes, floodScenarios, floodOverviewRes, riskOverviewRes] = await Promise.all([
         fetchSystemMetrics(),
         fetchMapOverview(),
@@ -68,48 +57,25 @@ export default function CommandCenterPage() {
       setScenarios(floodScenarios);
       setFloodOverview(floodOverviewRes);
       setRiskOverview(riskOverviewRes);
-
-      if (riskOverviewRes && riskOverviewRes.status === 'ANALYSIS_ACTIVE') {
-        const [mRisks, recs] = await Promise.all([
-          fetchMarketRisks(),
-          fetchRecoveryPriorities(20)
-        ]);
-        setMarketRisks(mRisks);
-        setRecoveryPriorities(recs);
-      }
     }
-    loadInitialData();
+    loadData();
   }, []);
 
   const handleSimulateScenario = async (eventId: string) => {
     setSimulating(true);
-    setSelectedParcel(null);
-    setSelectedMarket(null);
-
     const ov = await simulateFloodEvent(eventId);
     setFloodOverview(ov);
     
     const riskOv = await analyzeFoodRisk();
     setRiskOverview(riskOv);
 
-    const [updatedGeoJson, mRisks, recs] = await Promise.all([
-      fetchMapOverview(),
-      fetchMarketRisks(),
-      fetchRecoveryPriorities(20)
-    ]);
-
+    const updatedGeoJson = await fetchMapOverview();
     setMapGeoJson(updatedGeoJson);
-    setMarketRisks(mRisks);
-    setRecoveryPriorities(recs);
-
     setSimulating(false);
   };
 
   const handleResetScenario = async () => {
     setSimulating(true);
-    setSelectedParcel(null);
-    setSelectedMarket(null);
-
     const ov = await resetFloodScenario();
     setFloodOverview(ov);
     
@@ -118,10 +84,6 @@ export default function CommandCenterPage() {
 
     const updatedGeoJson = await fetchMapOverview();
     setMapGeoJson(updatedGeoJson);
-
-    setMarketRisks([]);
-    setRecoveryPriorities([]);
-
     setSimulating(false);
   };
 
@@ -130,16 +92,8 @@ export default function CommandCenterPage() {
     const riskOv = await analyzeFoodRisk();
     setRiskOverview(riskOv);
 
-    const [updatedGeoJson, mRisks, recs] = await Promise.all([
-      fetchMapOverview(),
-      fetchMarketRisks(),
-      fetchRecoveryPriorities(20)
-    ]);
-
+    const updatedGeoJson = await fetchMapOverview();
     setMapGeoJson(updatedGeoJson);
-    setMarketRisks(mRisks);
-    setRecoveryPriorities(recs);
-
     setAnalyzingRisk(false);
   };
 
@@ -155,131 +109,141 @@ export default function CommandCenterPage() {
     setSelectedMarket(detail);
   };
 
-  const handleNavigate = (sectionId: string) => {
-    setActiveSection(sectionId);
-    const elem = document.getElementById(sectionId);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans antialiased">
-      {/* Left Navigation Sidebar */}
-      <Sidebar
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
-        systemStatus={floodOverview?.status === 'ACTIVE_FLOOD' ? 'Disaster Active' : 'All Systems Operational'}
+    <AppShell
+      disasterStatus={floodOverview?.status || 'NORMAL'}
+      activeEventName={floodOverview?.active_event?.name}
+    >
+      {/* Overview Header */}
+      {floodOverview?.status === 'ACTIVE_FLOOD' ? (
+        <DisasterMetricsBar overview={floodOverview} />
+      ) : (
+        <MetricsBar metrics={metrics} />
+      )}
+
+      {/* Disaster Simulation Controller */}
+      <FloodScenarioControl
+        scenarios={scenarios}
+        activeOverview={floodOverview}
+        onSimulate={handleSimulateScenario}
+        onReset={handleResetScenario}
+        loading={simulating || analyzingRisk}
       />
 
-      {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <TopHeader
-          disasterStatus={floodOverview?.status || 'NORMAL'}
-          activeEventName={floodOverview?.active_event?.name}
+      {/* City Risk Bar */}
+      <CityRiskMetricsBar
+        riskOverview={riskOverview}
+        onAnalyze={handleAnalyzeFoodRisk}
+        analyzing={analyzingRisk}
+        hasActiveFlood={floodOverview?.status === 'ACTIVE_FLOOD'}
+      />
+
+      {/* Map Preview Hero Workspace */}
+      <div className="relative h-[550px]">
+        <MapView
+          geoJsonData={mapGeoJson}
+          onSelectParcel={handleSelectParcel}
+          onSelectMarket={handleSelectMarket}
         />
 
-        {/* Content Container */}
-        <div className="p-6 md:p-8 flex flex-col gap-8 max-w-[1600px] w-full mx-auto overflow-y-auto">
-          {/* Section 1: Overview & Food Network */}
-          <div id="overview">
-            {floodOverview?.status === 'ACTIVE_FLOOD' ? (
-              <DisasterMetricsBar overview={floodOverview} />
-            ) : (
-              <MetricsBar metrics={metrics} />
+        {(selectedParcel || selectedMarket) && (
+          <div className="absolute top-4 right-4 z-20 max-h-[500px] overflow-y-auto">
+            {selectedParcel && (
+              <ParcelDetailPanel parcel={selectedParcel} onClose={() => setSelectedParcel(null)} />
+            )}
+            {selectedMarket && (
+              <MarketDetailPanel market={selectedMarket} onClose={() => setSelectedMarket(null)} />
             )}
           </div>
-
-          {/* Section 2: Disaster Scenario Controller */}
-          <div id="analysis">
-            <FloodScenarioControl
-              scenarios={scenarios}
-              activeOverview={floodOverview}
-              onSimulate={handleSimulateScenario}
-              onReset={handleResetScenario}
-              loading={simulating || analyzingRisk}
-            />
-          </div>
-
-          {/* Section 3: City Food Supply Risk Gauge & Breakdown */}
-          <CityRiskMetricsBar
-            riskOverview={riskOverview}
-            onAnalyze={handleAnalyzeFoodRisk}
-            analyzing={analyzingRisk}
-            hasActiveFlood={floodOverview?.status === 'ACTIVE_FLOOD'}
-          />
-
-          {/* Section 4: Main Geospatial Map Workspace (Hero) */}
-          <div id="map" className="relative flex flex-col lg:flex-row gap-6 h-[680px]">
-            <div className="flex-1 relative h-full">
-              <MapView
-                geoJsonData={mapGeoJson}
-                onSelectParcel={handleSelectParcel}
-                onSelectMarket={handleSelectMarket}
-              />
-            </div>
-
-            {/* Floating Inspection Panels */}
-            {(selectedParcel || selectedMarket) && (
-              <div className="absolute top-4 right-4 z-20 max-h-[620px] overflow-y-auto">
-                {selectedParcel && (
-                  <ParcelDetailPanel
-                    parcel={selectedParcel}
-                    onClose={() => setSelectedParcel(null)}
-                  />
-                )}
-                {selectedMarket && (
-                  <MarketDetailPanel
-                    market={selectedMarket}
-                    onClose={() => setSelectedMarket(null)}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Section 5: Market Exposure Rankings & Recovery Priority List */}
-          {floodOverview?.status === 'ACTIVE_FLOOD' && (
-            <div id="markets" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MarketRiskTable
-                markets={marketRisks}
-                onSelectMarket={handleSelectMarket}
-              />
-              <div id="recovery">
-                <RecoveryPriorityList
-                  priorities={recoveryPriorities}
-                  onSelectParcel={handleSelectParcel}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Section 6: AI Analyst Reasoning Panel */}
-          <div id="ai-analyst">
-            <GeminiAnalystPanel
-              activeDisasterName={floodOverview?.active_event?.name}
-              overallRiskScore={riskOverview?.overall_risk_score}
-              riskLevel={riskOverview?.risk_level}
-              parcelId={selectedParcel?.parcel_id}
-              marketId={selectedMarket?.market_id}
-            />
-          </div>
-
-          {/* Section 7: City Action Framework */}
-          <div id="city-action">
-            <CityActionSection />
-          </div>
-
-          {/* Data Honesty Footer */}
-          <footer className="mt-auto border-t border-slate-800/80 pt-6 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
-            <p className="text-amber-400/90">
-              <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & risk models — not official government predictions, legal land ownership, or market forecasts.
-            </p>
-            <p>Fund My Crazy — &ldquo;Surprise Us!&rdquo; Competition Project</p>
-          </footer>
-        </div>
+        )}
       </div>
-    </div>
+
+      {/* Quick Module Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 font-mono text-xs">
+        <Link
+          href="/food-map"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-emerald-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-emerald-400">
+            <MapPin className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">Food Map</h4>
+            <p className="text-[10px] text-slate-400 font-sans">Full screen GIS spatial workspace</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/markets"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-amber-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-amber-400">
+            <Store className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">Markets</h4>
+            <p className="text-[10px] text-slate-400 font-sans">Wholesale market exposures</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/risk-analysis"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-orange-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-orange-400">
+            <ShieldAlert className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">Risk Analysis</h4>
+            <p className="text-[10px] text-slate-400 font-sans">City food-supply vulnerability</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/recovery"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-indigo-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-indigo-400">
+            <ListOrdered className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">Recovery</h4>
+            <p className="text-[10px] text-slate-400 font-sans">Ranked parcel interventions</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/ai-analyst"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-purple-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-purple-400">
+            <Bot className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">AI Analyst</h4>
+            <p className="text-[10px] text-slate-400 font-sans">Gemini decision reasoning</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/city-action"
+          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition flex flex-col justify-between gap-3 group"
+        >
+          <div className="flex items-center justify-between text-cyan-400">
+            <Activity className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-0.5">City Action</h4>
+            <p className="text-[10px] text-slate-400 font-sans">Response framework</p>
+          </div>
+        </Link>
+      </div>
+    </AppShell>
   );
 }

@@ -1,4 +1,8 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   MapPin,
@@ -7,51 +11,50 @@ import {
   ListOrdered,
   Bot,
   Activity,
-  CheckCircle2,
   Info
 } from 'lucide-react';
 
 interface SidebarProps {
-  activeSection: string;
-  onNavigate: (sectionId: string) => void;
-  systemStatus: string;
+  systemStatus?: string;
 }
 
-export default function Sidebar({ activeSection, onNavigate, systemStatus }: SidebarProps) {
+export default function Sidebar({ systemStatus = 'All Systems Operational' }: SidebarProps) {
+  const pathname = usePathname();
+
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'map', label: 'Food Map', icon: MapPin },
-    { id: 'markets', label: 'Markets', icon: Store },
-    { id: 'analysis', label: 'Risk Analysis', icon: ShieldAlert },
-    { id: 'recovery', label: 'Recovery Priorities', icon: ListOrdered },
-    { id: 'ai-analyst', label: 'AI Analyst', icon: Bot },
-    { id: 'city-action', label: 'City Action', icon: Activity },
+    { href: '/command-center', label: 'Overview', icon: LayoutDashboard },
+    { href: '/food-map', label: 'Food Map', icon: MapPin },
+    { href: '/markets', label: 'Markets', icon: Store },
+    { href: '/risk-analysis', label: 'Risk Analysis', icon: ShieldAlert },
+    { href: '/recovery', label: 'Recovery Priorities', icon: ListOrdered },
+    { href: '/ai-analyst', label: 'AI Analyst', icon: Bot },
+    { href: '/city-action', label: 'City Action', icon: Activity },
   ];
 
   return (
     <aside className="w-64 bg-slate-950 border-r border-slate-800/80 flex flex-col justify-between p-4 min-h-screen text-xs select-none">
       {/* Brand Section */}
       <div>
-        <div className="flex items-center gap-3 px-2 py-3 border-b border-slate-800/80 mb-6">
-          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+        <Link href="/" className="flex items-center gap-3 px-2 py-3 border-b border-slate-800/80 mb-6 group cursor-pointer">
+          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:border-emerald-500/60 transition">
             <span className="text-xl">🌾</span>
           </div>
           <div>
             <h1 className="text-sm font-bold text-white tracking-tight">AgriGuard-AI</h1>
             <p className="text-[10px] text-slate-400 font-medium">City Food Resilience Intelligence</p>
           </div>
-        </div>
+        </Link>
 
-        {/* Navigation Items */}
+        {/* Navigation Links */}
         <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeSection === item.id;
+            const isActive = pathname === item.href || (item.href === '/command-center' && pathname === '/');
             return (
-              <button
-                key={item.id}
-                onClick={() => onNavigate(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition cursor-pointer ${
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition ${
                   isActive
                     ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-sm'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
@@ -59,7 +62,7 @@ export default function Sidebar({ activeSection, onNavigate, systemStatus }: Sid
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                 <span>{item.label}</span>
-              </button>
+              </Link>
             );
           })}
         </nav>
