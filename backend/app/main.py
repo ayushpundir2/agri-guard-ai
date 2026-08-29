@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.health import router as health_router
 from app.api.food_system import router as food_system_router
 from app.api.flood import router as flood_router
+from app.api.risk import router as risk_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api")
 app.include_router(food_system_router, prefix="/api")
 app.include_router(flood_router, prefix="/api")
+app.include_router(risk_router, prefix="/api")
 
 @app.get("/")
 def root():

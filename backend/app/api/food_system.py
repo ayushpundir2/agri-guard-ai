@@ -13,6 +13,7 @@ from app.models.food_system import (
     CultivationStatus
 )
 from app.models.flood import FloodEvent, ParcelFloodImpact
+from app.models.risk import RecoveryPriority
 from app.schemas.food_system import (
     ParcelResponse,
     ParcelDetailResponse,
@@ -22,7 +23,6 @@ from app.schemas.food_system import (
     CultivationEvidenceResponse,
     SystemMetricsResponse
 )
-from app.schemas.flood import ParcelFloodImpactResponse
 from app.core.geospatial import geometry_to_geojson
 
 router = APIRouter()
@@ -186,14 +186,21 @@ def get_market_detail(market_id: str, db: Session = Depends(get_db)):
 def get_map_overview(db: Session = Depends(get_db)):
     features = []
 
-    # Get active flood event impacts if available
     active_event = db.query(FloodEvent).filter(FloodEvent.is_active == True).first()
     impact_map = {}
+    recovery_map = {}
+
     if active_event:
         impacts = db.query(ParcelFloodImpact).filter(
             ParcelFloodImpact.flood_event_id == active_event.id
         ).all()
         impact_map = {imp.parcel_id: imp for imp in impacts}
+
+        # Get recovery priorities map
+        priorities = db.query(RecoveryPriority).filter(
+            RecoveryPriority.flood_event_id == active_event.id
+        ).all()
+        recovery_map = {r.parcel_id: r for r in priorities}
 
         # Add Active Flood Event Polygon Feature
         event_geom = geometry_to_geojson(active_event.geometry)
@@ -216,10 +223,15 @@ def get_map_overview(db: Session = Depends(get_db)):
         ev_status = p.evidence.evidence_status if p.evidence else "N/A"
         
         impact = impact_map.get(p.id)
+        recovery = recovery_map.get(p.id)
+
         is_affected = impact is not None
         exposure_lvl = impact.exposure_level.value if (impact and hasattr(impact.exposure_level, "value")) else (str(impact.exposure_level) if impact else "NONE")
         overlap_pct = impact.overlap_percentage if impact else 0.0
         crop_damage = impact.estimated_crop_damage if impact else 0.0
+
+        p_score = recovery.priority_score if recovery else 0.0
+        p_level = recovery.priority_level.value if (recovery and hasattr(recovery.priority_level, "value")) else (str(recovery.priority_level) if recovery else "NONE")
 
         features.append({
             "type": "Feature",
@@ -237,7 +249,9 @@ def get_map_overview(db: Session = Depends(get_db)):
                 "is_affected_by_flood": is_affected,
                 "exposure_level": exposure_lvl,
                 "overlap_percentage": overlap_pct,
-                "estimated_crop_damage": crop_damage
+                "estimated_crop_damage": crop_damage,
+                "recovery_priority_score": p_score,
+                "recovery_priority_level": p_level
             }
         })
 

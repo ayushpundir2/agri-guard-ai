@@ -12,6 +12,13 @@ from app.models.flood import (
     FloodSeverity,
     ExposureLevel
 )
+from app.models.risk import (
+    FoodRiskAssessment,
+    MarketRiskAssessment,
+    RecoveryPriority,
+    RiskLevel,
+    PriorityLevel
+)
 
 __all__ = [
     "AgriculturalParcel",
@@ -23,5 +30,10 @@ __all__ = [
     "FloodEvent",
     "ParcelFloodImpact",
     "FloodSeverity",
-    "ExposureLevel"
+    "ExposureLevel",
+    "FoodRiskAssessment",
+    "MarketRiskAssessment",
+    "RecoveryPriority",
+    "RiskLevel",
+    "PriorityLevel"
 ]

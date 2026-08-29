@@ -6,6 +6,9 @@ import MapView from '@/components/MapView';
 import MetricsBar from '@/components/MetricsBar';
 import DisasterMetricsBar from '@/components/DisasterMetricsBar';
 import FloodScenarioControl from '@/components/FloodScenarioControl';
+import CityRiskMetricsBar from '@/components/CityRiskMetricsBar';
+import MarketRiskTable from '@/components/MarketRiskTable';
+import RecoveryPriorityList from '@/components/RecoveryPriorityList';
 import ParcelDetailPanel from '@/components/ParcelDetailPanel';
 import MarketDetailPanel from '@/components/MarketDetailPanel';
 import {
@@ -17,11 +20,18 @@ import {
   simulateFloodEvent,
   resetFloodScenario,
   fetchFloodOverview,
+  analyzeFoodRisk,
+  fetchRiskOverview,
+  fetchMarketRisks,
+  fetchRecoveryPriorities,
   SystemMetrics,
   ParcelDetail,
   MarketDetail,
   FloodEvent,
-  FloodOverview
+  FloodOverview,
+  FoodRiskOverview,
+  MarketRisk,
+  RecoveryPriority
 } from '@/lib/api';
 
 export default function Home() {
@@ -29,43 +39,104 @@ export default function Home() {
   const [mapGeoJson, setMapGeoJson] = useState<any>(null);
   const [scenarios, setScenarios] = useState<FloodEvent[]>([]);
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
+  const [riskOverview, setRiskOverview] = useState<FoodRiskOverview | null>(null);
+  const [marketRisks, setMarketRisks] = useState<MarketRisk[]>([]);
+  const [recoveryPriorities, setRecoveryPriorities] = useState<RecoveryPriority[]>([]);
+
   const [simulating, setSimulating] = useState<boolean>(false);
+  const [analyzingRisk, setAnalyzingRisk] = useState<boolean>(false);
 
   const [selectedParcel, setSelectedParcel] = useState<ParcelDetail | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<MarketDetail | null>(null);
 
   useEffect(() => {
-    async function loadData() {
-      const [mRes, geoRes, floodScenarios, floodOverviewRes] = await Promise.all([
+    async function loadInitialData() {
+      const [mRes, geoRes, floodScenarios, floodOverviewRes, riskOverviewRes] = await Promise.all([
         fetchSystemMetrics(),
         fetchMapOverview(),
         fetchFloodEvents(),
-        fetchFloodOverview()
+        fetchFloodOverview(),
+        fetchRiskOverview()
       ]);
       setMetrics(mRes);
       setMapGeoJson(geoRes);
       setScenarios(floodScenarios);
       setFloodOverview(floodOverviewRes);
+      setRiskOverview(riskOverviewRes);
+
+      if (riskOverviewRes && riskOverviewRes.status === 'ANALYSIS_ACTIVE') {
+        const [mRisks, recs] = await Promise.all([
+          fetchMarketRisks(),
+          fetchRecoveryPriorities(20)
+        ]);
+        setMarketRisks(mRisks);
+        setRecoveryPriorities(recs);
+      }
     }
-    loadData();
+    loadInitialData();
   }, []);
 
   const handleSimulateScenario = async (eventId: string) => {
     setSimulating(true);
+    setSelectedParcel(null);
+    setSelectedMarket(null);
+
     const ov = await simulateFloodEvent(eventId);
     setFloodOverview(ov);
-    const updatedGeoJson = await fetchMapOverview();
+    
+    // Automatically trigger food risk analysis
+    const riskOv = await analyzeFoodRisk();
+    setRiskOverview(riskOv);
+
+    const [updatedGeoJson, mRisks, recs] = await Promise.all([
+      fetchMapOverview(),
+      fetchMarketRisks(),
+      fetchRecoveryPriorities(20)
+    ]);
+
     setMapGeoJson(updatedGeoJson);
+    setMarketRisks(mRisks);
+    setRecoveryPriorities(recs);
+
     setSimulating(false);
   };
 
   const handleResetScenario = async () => {
     setSimulating(true);
+    setSelectedParcel(null);
+    setSelectedMarket(null);
+
     const ov = await resetFloodScenario();
     setFloodOverview(ov);
+    
+    const riskOv = await fetchRiskOverview();
+    setRiskOverview(riskOv);
+
     const updatedGeoJson = await fetchMapOverview();
     setMapGeoJson(updatedGeoJson);
+
+    setMarketRisks([]);
+    setRecoveryPriorities([]);
+
     setSimulating(false);
+  };
+
+  const handleAnalyzeFoodRisk = async () => {
+    setAnalyzingRisk(true);
+    const riskOv = await analyzeFoodRisk();
+    setRiskOverview(riskOv);
+
+    const [updatedGeoJson, mRisks, recs] = await Promise.all([
+      fetchMapOverview(),
+      fetchMarketRisks(),
+      fetchRecoveryPriorities(20)
+    ]);
+
+    setMapGeoJson(updatedGeoJson);
+    setMarketRisks(mRisks);
+    setRecoveryPriorities(recs);
+
+    setAnalyzingRisk(false);
   };
 
   const handleSelectParcel = async (parcelId: string) => {
@@ -100,25 +171,32 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Flood Simulation Controller */}
+      {/* Disaster Scenario Controller */}
       <FloodScenarioControl
         scenarios={scenarios}
         activeOverview={floodOverview}
         onSimulate={handleSimulateScenario}
         onReset={handleResetScenario}
-        loading={simulating}
+        loading={simulating || analyzingRisk}
       />
 
-      {/* Dynamic Metrics Headers */}
+      {/* City Food Supply Risk Analysis Bar */}
+      <CityRiskMetricsBar
+        riskOverview={riskOverview}
+        onAnalyze={handleAnalyzeFoodRisk}
+        analyzing={analyzingRisk}
+        hasActiveFlood={floodOverview?.status === 'ACTIVE_FLOOD'}
+      />
+
+      {/* Dynamic System Baseline or Disaster Metrics */}
       {floodOverview?.status === 'ACTIVE_FLOOD' ? (
         <DisasterMetricsBar overview={floodOverview} />
       ) : (
         <MetricsBar metrics={metrics} />
       )}
 
-      {/* Main Map + Inspection Panels Area */}
+      {/* Main Geospatial Map View */}
       <div className="relative flex flex-col lg:flex-row gap-6 h-[650px]">
-        {/* Map Container */}
         <div className="flex-1 relative h-full">
           <MapView
             geoJsonData={mapGeoJson}
@@ -127,7 +205,7 @@ export default function Home() {
           />
         </div>
 
-        {/* Floating / Side Inspection Panels */}
+        {/* Floating Inspection Panels */}
         {(selectedParcel || selectedMarket) && (
           <div className="absolute top-4 right-4 z-20 max-h-[600px] overflow-y-auto">
             {selectedParcel && (
@@ -146,10 +224,24 @@ export default function Home() {
         )}
       </div>
 
-      {/* Mandatory Data Honesty Disclaimer Footer */}
+      {/* Market Risk & Recovery Priorities Grid */}
+      {floodOverview?.status === 'ACTIVE_FLOOD' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MarketRiskTable
+            markets={marketRisks}
+            onSelectMarket={handleSelectMarket}
+          />
+          <RecoveryPriorityList
+            priorities={recoveryPriorities}
+            onSelectParcel={handleSelectParcel}
+          />
+        </div>
+      )}
+
+      {/* Data Honesty Footer */}
       <footer className="mt-auto border-t border-slate-800 pt-4 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
         <p className="text-amber-400/90">
-          <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & simulations — not official cadastral boundaries, historical predictions, or legal ownership proof.
+          <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & risk models — not official government predictions, legal land ownership, or market forecasts.
         </p>
         <p>Fund My Crazy — &ldquo;Surprise Us!&rdquo; Competition Project</p>
       </footer>

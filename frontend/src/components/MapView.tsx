@@ -29,8 +29,8 @@ export default function MapView({
   const [showMarkets, setShowMarkets] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
   const [showFlood, setShowFlood] = useState(true);
+  const [colorMode, setColorMode] = useState<'status' | 'recovery'>('recovery');
 
-  // Initialize map once
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
@@ -60,8 +60,8 @@ export default function MapView({
         source: 'food-system',
         filter: ['==', ['get', 'feature_type'], 'flood_event'],
         paint: {
-          'fill-color': '#06b6d4', // Cyan water fill
-          'fill-opacity': 0.35
+          'fill-color': '#06b6d4',
+          'fill-opacity': 0.30
         }
       });
 
@@ -92,7 +92,7 @@ export default function MapView({
         }
       });
 
-      // 4. Agricultural Parcels Polygon Fill Layer (Flood-aware styling)
+      // 4. Agricultural Parcels Polygon Fill Layer
       map.current.addLayer({
         id: 'parcels-fill-layer',
         type: 'fill',
@@ -101,21 +101,33 @@ export default function MapView({
         paint: {
           'fill-color': [
             'case',
-            ['boolean', ['get', 'is_affected_by_flood'], false],
+            ['!=', ['get', 'recovery_priority_level'], 'NONE'],
             [
               'match',
-              ['get', 'exposure_level'],
-              'SEVERE', '#dc2626',   // Red
+              ['get', 'recovery_priority_level'],
+              'CRITICAL', '#dc2626',   // Red
               'HIGH', '#f97316',     // Orange
               'MODERATE', '#f59e0b', // Amber
-              '#06b6d4'              // Cyan/Light Blue for Low
+              '#10b981'              // Green for Low
             ],
             [
-              'match',
-              ['get', 'cultivation_status'],
-              'active', '#10b981',
-              'inactive', '#ef4444',
-              '#f59e0b'
+              'case',
+              ['boolean', ['get', 'is_affected_by_flood'], false],
+              [
+                'match',
+                ['get', 'exposure_level'],
+                'SEVERE', '#dc2626',
+                'HIGH', '#f97316',
+                'MODERATE', '#f59e0b',
+                '#06b6d4'
+              ],
+              [
+                'match',
+                ['get', 'cultivation_status'],
+                'active', '#10b981',
+                'inactive', '#ef4444',
+                '#f59e0b'
+              ]
             ]
           ],
           'fill-opacity': 0.65
@@ -148,7 +160,6 @@ export default function MapView({
         }
       });
 
-      // Click handlers
       map.current.on('click', 'parcels-fill-layer', (e) => {
         if (e.features && e.features[0]) {
           const parcelId = e.features[0].properties.parcel_id;
@@ -178,7 +189,6 @@ export default function MapView({
     };
   }, [lng, lat, zoom, onSelectParcel, onSelectMarket]);
 
-  // Update GeoJSON source
   useEffect(() => {
     if (!map.current || !geoJsonData) return;
     const source = map.current.getSource('food-system') as maplibregl.GeoJSONSource;
@@ -187,7 +197,6 @@ export default function MapView({
     }
   }, [geoJsonData]);
 
-  // Visibility toggles
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded()) return;
 
