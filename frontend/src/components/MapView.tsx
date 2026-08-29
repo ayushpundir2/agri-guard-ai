@@ -14,6 +14,32 @@ interface MapViewProps {
   zoom?: number;
 }
 
+// Fallback CARTO Dark Matter vector/raster style for MapLibre
+const DEFAULT_DARK_MAP_STYLE = {
+  version: 8,
+  sources: {
+    'carto-dark': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+      ],
+      tileSize: 256,
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-dark-layer',
+      type: 'raster',
+      source: 'carto-dark',
+      minzoom: 0,
+      maxzoom: 19
+    }
+  ]
+};
+
 export default function MapView({
   geoJsonData,
   onSelectParcel,
@@ -29,16 +55,16 @@ export default function MapView({
   const [showMarkets, setShowMarkets] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
   const [showFlood, setShowFlood] = useState(true);
-  const [colorMode, setColorMode] = useState<'status' | 'recovery'>('recovery');
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    const mapStyle = process.env.NEXT_PUBLIC_MAP_STYLE || 'https://demotiles.maplibre.org/style.json';
+    const customStyle = process.env.NEXT_PUBLIC_MAP_STYLE;
+    const mapStyle = customStyle || DEFAULT_DARK_MAP_STYLE;
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: mapStyle,
+      style: mapStyle as any,
       center: [lng, lat],
       zoom: zoom,
     });
@@ -61,7 +87,7 @@ export default function MapView({
         filter: ['==', ['get', 'feature_type'], 'flood_event'],
         paint: {
           'fill-color': '#06b6d4',
-          'fill-opacity': 0.30
+          'fill-opacity': 0.35
         }
       });
 
