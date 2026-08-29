@@ -13,8 +13,9 @@ def init_and_seed():
     except Exception as e:
         print(f"PostGIS extension warning: {e}")
 
-    print("Initializing database tables...")
+    print("Re-creating fresh database tables...")
     try:
+        Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
         print("Database tables initialized successfully.")
     except Exception as e:
