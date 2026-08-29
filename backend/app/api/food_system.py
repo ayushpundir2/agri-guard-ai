@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, String
 from typing import List, Optional
 from shapely.geometry import box
 
@@ -82,7 +82,7 @@ def get_parcels(
 @router.get("/parcels/{parcel_id}", response_model=ParcelDetailResponse)
 def get_parcel_detail(parcel_id: str, db: Session = Depends(get_db)):
     parcel = db.query(AgriculturalParcel).filter(
-        (AgriculturalParcel.parcel_id == parcel_id) | (AgriculturalParcel.id.cast(func.text) == parcel_id)
+        (AgriculturalParcel.parcel_id == parcel_id) | (AgriculturalParcel.id.cast(String) == parcel_id)
     ).first()
 
     if not parcel:
@@ -154,7 +154,7 @@ def get_markets(db: Session = Depends(get_db)):
 @router.get("/markets/{market_id}", response_model=MarketDetailResponse)
 def get_market_detail(market_id: str, db: Session = Depends(get_db)):
     market = db.query(Market).filter(
-        (Market.market_id == market_id) | (Market.id.cast(func.text) == market_id)
+        (Market.market_id == market_id) | (Market.id.cast(String) == market_id)
     ).first()
 
     if not market:

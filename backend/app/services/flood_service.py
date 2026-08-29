@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text
+from sqlalchemy import func, text, String
 from shapely.geometry import shape
 from geoalchemy2.shape import to_shape
 from typing import Dict, Any, List
@@ -21,7 +21,7 @@ class FloodAnalysisService:
         db.query(FloodEvent).update({"is_active": False})
         
         event = db.query(FloodEvent).filter(
-            (FloodEvent.event_id == event_id) | (FloodEvent.id.cast(func.text) == event_id)
+            (FloodEvent.event_id == event_id) | (FloodEvent.id.cast(String) == event_id)
         ).first()
 
         if not event:
