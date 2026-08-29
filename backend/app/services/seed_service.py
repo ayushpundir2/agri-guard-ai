@@ -1,4 +1,5 @@
 import random
+import math
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from shapely.geometry import Polygon, Point
@@ -69,12 +70,12 @@ CROPS = ["Onion", "Tomato", "Sugarcane", "Wheat", "Pomegranate", "Soybean"]
 def generate_agricultural_polygon(center_lat: float, center_lon: float, size_deg: float = 0.003) -> Polygon:
     points = []
     num_points = 4
-    angle_step = (2 * 3.14159) / num_points
+    angle_step = (2 * math.pi) / num_points
     for i in range(num_points):
         angle = i * angle_step + random.uniform(-0.2, 0.2)
         radius = size_deg * random.uniform(0.7, 1.3)
-        lon = center_lon + radius * random.cos(angle)
-        lat = center_lat + radius * random.sin(angle)
+        lon = center_lon + radius * math.cos(angle)
+        lat = center_lat + radius * math.sin(angle)
         points.append((lon, lat))
     points.append(points[0])
     return Polygon(points)
