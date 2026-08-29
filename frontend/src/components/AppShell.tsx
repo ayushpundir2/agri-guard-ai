@@ -16,7 +16,7 @@ export default function AppShell({
   activeEventName
 }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans antialiased select-none">
+    <div className="min-h-screen bg-civic-ivory text-civic-charcoal flex font-sans antialiased select-none">
       {/* Shared Navigation Sidebar */}
       <Sidebar
         systemStatus={disasterStatus === 'ACTIVE_FLOOD' ? 'Disaster Active' : 'All Systems Operational'}
@@ -35,8 +35,8 @@ export default function AppShell({
           {children}
 
           {/* Data Honesty Footer */}
-          <footer className="mt-auto border-t border-slate-800/80 pt-6 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
-            <p className="text-amber-400/90">
+          <footer className="mt-auto border-t border-civic-neutral pt-6 text-xs text-civic-charcoal/70 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
+            <p className="text-civic-saffron font-medium">
               <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & risk models — not official government predictions, legal land ownership, or market forecasts.
             </p>
             <p>Fund My Crazy — &ldquo;Surprise Us!&rdquo; Competition Project</p>

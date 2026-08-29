@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { askGeminiAnalyst, AIAnalysisResult } from '@/lib/api';
-import { Bot, Send, Sparkles, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Bot, Sparkles, ShieldCheck } from 'lucide-react';
 
 interface GeminiAnalystPanelProps {
   activeDisasterName?: string | null;
@@ -38,41 +38,39 @@ export default function GeminiAnalystPanel({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-xl shadow-xl flex flex-col gap-4 font-mono text-xs">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="bg-civic-card border border-civic-neutral p-5 rounded-2xl shadow-sm flex flex-col gap-4 font-mono text-xs">
+      <div className="flex items-center justify-between border-b border-civic-neutral pb-3">
         <div className="flex items-center gap-2">
-          <Bot className="w-5 h-5 text-indigo-400" />
+          <Bot className="w-5 h-5 text-civic-forest" />
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-civic-forest uppercase tracking-wider">
               ASK AGRIGUARD ANALYST
             </h3>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-civic-charcoal/70 font-sans">
               AI-assisted city resilience reasoning layer
             </p>
           </div>
         </div>
 
-        {/* Context indicator */}
-        <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-[10px] text-slate-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-civic-ivory border border-civic-neutral text-[10px] text-civic-charcoal">
+          <ShieldCheck className="w-3.5 h-3.5 text-civic-leaf" />
           <span>
             {activeDisasterName ? `Scenario: ${activeDisasterName}` : 'Baseline Normal'}
           </span>
           {overallRiskScore !== undefined && overallRiskScore !== null && (
-            <span className="font-bold text-amber-400">| Risk: {overallRiskScore}/100</span>
+            <span className="font-bold text-civic-terracotta">| Risk: {overallRiskScore}/100</span>
           )}
         </div>
       </div>
 
       {/* Suggested Quick Questions */}
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1.5 font-sans">
         {SUGGESTED_QUESTIONS.map((q) => (
           <button
             key={q}
             onClick={() => handleAsk(q)}
             disabled={loading}
-            className="px-2.5 py-1 bg-slate-950/70 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition cursor-pointer text-[10px]"
+            className="px-2.5 py-1 bg-civic-ivory hover:bg-civic-neutral/60 border border-civic-neutral rounded-lg text-civic-charcoal transition cursor-pointer text-[11px]"
           >
             {q}
           </button>
@@ -93,12 +91,12 @@ export default function GeminiAnalystPanel({
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="Ask Gemini about food risks, market impact, or recovery actions..."
           disabled={loading}
-          className="flex-1 bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 bg-civic-ivory border border-civic-neutral text-civic-charcoal rounded-xl px-3 py-2 text-xs outline-none focus:border-civic-forest font-sans"
         />
         <button
           type="submit"
           disabled={loading || !question.trim()}
-          className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg transition cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-1.5 px-4 py-2 bg-civic-forest hover:bg-civic-leaf text-white font-bold rounded-xl transition cursor-pointer disabled:opacity-50 text-xs"
         >
           <Sparkles className="w-3.5 h-3.5" />
           {loading ? 'REASONING...' : 'ANALYZE'}
@@ -107,27 +105,27 @@ export default function GeminiAnalystPanel({
 
       {/* Gemini Analysis Output */}
       {result && result.analysis && (
-        <div className="bg-slate-950/80 border border-indigo-900/60 p-4 rounded-lg space-y-3 mt-1 text-slate-200">
+        <div className="bg-civic-ivory/80 border border-civic-neutral p-4 rounded-xl space-y-3 mt-1 text-civic-charcoal font-sans">
           <div>
-            <span className="text-[10px] text-indigo-400 uppercase font-bold block mb-1">
+            <span className="text-[10px] text-civic-forest uppercase font-mono font-bold block mb-1">
               Executive Overview
             </span>
-            <p className="text-xs leading-relaxed font-sans">{result.analysis.summary}</p>
+            <p className="text-xs leading-relaxed">{result.analysis.summary}</p>
           </div>
 
           <div>
-            <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">
+            <span className="text-[10px] text-civic-charcoal/70 uppercase font-mono font-bold block mb-1">
               Analytical Reasoning
             </span>
-            <p className="text-xs leading-relaxed text-slate-300 font-sans">{result.analysis.reasoning}</p>
+            <p className="text-xs leading-relaxed text-civic-charcoal/90">{result.analysis.reasoning}</p>
           </div>
 
           {result.analysis.recommended_actions && result.analysis.recommended_actions.length > 0 && (
             <div>
-              <span className="text-[10px] text-emerald-400 uppercase font-bold block mb-1">
+              <span className="text-[10px] text-civic-leaf uppercase font-mono font-bold block mb-1">
                 Recommended Priority Actions
               </span>
-              <ul className="space-y-1 text-xs text-slate-300 list-disc list-inside font-sans">
+              <ul className="space-y-1 text-xs list-disc list-inside">
                 {result.analysis.recommended_actions.map((act, idx) => (
                   <li key={idx}>{act}</li>
                 ))}
@@ -135,7 +133,7 @@ export default function GeminiAnalystPanel({
             </div>
           )}
 
-          <div className="pt-2 border-t border-slate-800 text-[10px] text-amber-400/80 leading-tight">
+          <div className="pt-2 border-t border-civic-neutral text-[10px] text-civic-saffron font-mono leading-tight">
             <strong>Methodology Disclaimer:</strong> {result.analysis.caveats}
           </div>
         </div>

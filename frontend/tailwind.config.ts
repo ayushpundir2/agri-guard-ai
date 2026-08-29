@@ -9,8 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        civic: {
+          ivory: "#F7F5EE",
+          forest: "#14532D",
+          leaf: "#3F7D4A",
+          sage: "#8FAF8B",
+          saffron: "#D99A2B",
+          terracotta: "#D65A3A",
+          red: "#B42318",
+          teal: "#168A8A",
+          charcoal: "#26332B",
+          neutral: "#EAE7DC",
+          card: "#FFFFFF"
+        }
       },
     },
   },

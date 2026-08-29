@@ -10,33 +10,31 @@ export default function RiskGauge({ score, level }: RiskGaugeProps) {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
-  let colorClass = 'stroke-emerald-400 text-emerald-400';
-  let bgGlow = 'from-emerald-500/10';
+  let colorClass = 'stroke-civic-leaf text-civic-leaf';
+  let bgGlow = 'from-civic-leaf/10';
 
   if (level === 'CRITICAL') {
-    colorClass = 'stroke-red-500 text-red-400';
-    bgGlow = 'from-red-500/20';
+    colorClass = 'stroke-civic-red text-civic-red';
+    bgGlow = 'from-civic-red/15';
   } else if (level === 'HIGH') {
-    colorClass = 'stroke-orange-500 text-orange-400';
-    bgGlow = 'from-orange-500/20';
+    colorClass = 'stroke-civic-terracotta text-civic-terracotta';
+    bgGlow = 'from-civic-terracotta/15';
   } else if (level === 'MODERATE') {
-    colorClass = 'stroke-amber-400 text-amber-400';
-    bgGlow = 'from-amber-500/15';
+    colorClass = 'stroke-civic-saffron text-civic-saffron';
+    bgGlow = 'from-civic-saffron/15';
   }
 
   return (
     <div className={`relative flex items-center justify-center p-2 rounded-full bg-gradient-to-b ${bgGlow} to-transparent`}>
       <svg className="w-28 h-28 transform -rotate-90">
-        {/* Background track */}
         <circle
           cx="56"
           cy="56"
           r={radius}
-          className="stroke-slate-800"
+          className="stroke-civic-neutral"
           strokeWidth="8"
           fill="transparent"
         />
-        {/* Animated fill indicator */}
         <circle
           cx="56"
           cy="56"
@@ -49,12 +47,11 @@ export default function RiskGauge({ score, level }: RiskGaugeProps) {
           fill="transparent"
         />
       </svg>
-      {/* Center score label */}
       <div className="absolute flex flex-col items-center justify-center text-center">
-        <span className="text-2xl font-bold font-mono text-white leading-none">
+        <span className="text-2xl font-bold font-mono text-civic-charcoal leading-none">
           {score}
         </span>
-        <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
+        <span className="text-[9px] uppercase tracking-wider text-civic-charcoal/60 font-semibold mt-0.5 font-mono">
           / 100
         </span>
       </div>
