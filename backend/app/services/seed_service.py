@@ -1,8 +1,7 @@
 import random
-import math
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from sqlalchemy import text
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon
 from geoalchemy2.shape import from_shape
 
 from app.models.food_system import (
@@ -12,11 +11,11 @@ from app.models.food_system import (
     CultivationEvidence,
     CultivationStatus
 )
+from app.models.flood import FloodEvent, FloodSeverity, ParcelFloodImpact
 from app.services.evidence_engine import calculate_cultivation_evidence_score
 from app.services.market_linkage_engine import calculate_market_dependency
 from app.core.geospatial import calculate_polygon_area_acres
 
-# Target Representative Markets in Pune District, Maharashtra
 PUNE_MARKETS = [
     {
         "market_id": "MKT-PUNE-01",
@@ -68,26 +67,24 @@ PUNE_MARKETS = [
 CROPS = ["Onion", "Tomato", "Sugarcane", "Wheat", "Pomegranate", "Soybean"]
 
 def generate_agricultural_polygon(center_lat: float, center_lon: float, size_deg: float = 0.003) -> Polygon:
-    """Generates a realistic small agricultural parcel polygon near center_lat, center_lon."""
     points = []
     num_points = 4
-    angle_step = (2 * math.pi) / num_points
-    
+    angle_step = (2 * 3.14159) / num_points
     for i in range(num_points):
         angle = i * angle_step + random.uniform(-0.2, 0.2)
         radius = size_deg * random.uniform(0.7, 1.3)
-        lon = center_lon + radius * math.cos(angle)
-        lat = center_lat + radius * math.sin(angle)
+        lon = center_lon + radius * random.cos(angle)
+        lat = center_lat + radius * random.sin(angle)
         points.append((lon, lat))
-        
-    points.append(points[0]) # close polygon
+    points.append(points[0])
     return Polygon(points)
 
 def seed_database(db: Session, num_parcels: int = 75):
-    """Deterministically seeds database with Pune prototype parcels, markets, links, and evidence."""
-    random.seed(42) # Deterministic seed
+    random.seed(42)
 
-    # Clear existing data
+    # Clear existing
+    db.query(ParcelFloodImpact).delete()
+    db.query(FloodEvent).delete()
     db.query(MarketLink).delete()
     db.query(CultivationEvidence).delete()
     db.query(AgriculturalParcel).delete()
@@ -97,6 +94,7 @@ def seed_database(db: Session, num_parcels: int = 75):
     # 1. Create Markets
     db_markets = []
     for m in PUNE_MARKETS:
+        from shapely.geometry import Point
         point = Point(m["lon"], m["lat"])
         market_obj = Market(
             market_id=m["market_id"],
@@ -112,17 +110,15 @@ def seed_database(db: Session, num_parcels: int = 75):
         db_markets.append(market_obj)
 
     db.commit()
-    for m in db_markets:
-        db.refresh(m)
 
-    # Agricultural clusters around Pune peri-urban belt (Haveli, Khed, Shirur, Baramati, Junnar)
+    # Clusters around Pune agricultural belt
     cluster_centers = [
-        (18.60, 73.95), # Khed/Bhosari peri-urban
-        (18.45, 74.05), # Haveli/Uruli Kanchan
-        (18.80, 73.85), # Chakan/Rajgurunagar
-        (19.05, 73.90), # Manchar agricultural belt
-        (18.30, 74.20), # Shirur/Daund agricultural belt
-        (18.20, 74.50), # Baramati irrigated belt
+        (18.60, 73.95), # Khed
+        (18.45, 74.05), # Haveli
+        (18.80, 73.85), # Chakan
+        (19.05, 73.90), # Manchar
+        (18.30, 74.20), # Shirur
+        (18.20, 74.50), # Baramati
     ]
 
     # 2. Create Parcels
@@ -160,11 +156,9 @@ def seed_database(db: Session, num_parcels: int = 75):
 
     db.commit()
 
-    # 3. Create Evidence & Market Links for each parcel
+    # 3. Evidence & Market Links
     for parcel, p_lat, p_lon in db_parcels:
         db.refresh(parcel)
-
-        # Cultivation Evidence calculation
         evidence_score, evidence_status = calculate_cultivation_evidence_score(
             crop_activity=parcel.crop_activity_score,
             historical_activity=parcel.historical_activity_score,
@@ -184,7 +178,6 @@ def seed_database(db: Session, num_parcels: int = 75):
         )
         db.add(evidence)
 
-        # Market Links calculation
         for market in db_markets:
             dep_score, supply_share = calculate_market_dependency(
                 parcel_crop=parcel.crop_type,
@@ -194,8 +187,6 @@ def seed_database(db: Session, num_parcels: int = 75):
                 market_lat=market.latitude,
                 market_lon=market.longitude
             )
-
-            # Link if dependency score > 20
             if dep_score > 20.0:
                 link = MarketLink(
                     parcel_id=parcel.id,
@@ -206,4 +197,48 @@ def seed_database(db: Session, num_parcels: int = 75):
                 db.add(link)
 
     db.commit()
-    print(f"Successfully seeded database with {len(db_parcels)} Pune parcels and {len(db_markets)} wholesale markets.")
+
+    # 4. Create 2 Prototype Flood Scenarios intersecting generated parcels
+    # Scenario 1: Eastern Pune Flash Flood (Haveli/Shirur cluster)
+    flood_poly_1 = Polygon([
+        (73.98, 18.35),
+        (74.25, 18.35),
+        (74.25, 18.55),
+        (73.98, 18.55),
+        (73.98, 18.35)
+    ])
+
+    flood_event_1 = FloodEvent(
+        event_id="FLD-PNE-01",
+        name="Eastern Pune Riverine Flash Flood",
+        geometry=from_shape(flood_poly_1, srid=4326),
+        severity=FloodSeverity.SEVERE,
+        event_date=datetime.now(timezone.utc),
+        description="Illustrative severe flash flood event affecting Eastern Pune peri-urban agricultural clusters.",
+        is_active=False
+    )
+
+    # Scenario 2: Northern Agricultural Belt Flood (Chakan/Manchar cluster)
+    flood_poly_2 = Polygon([
+        (73.80, 18.75),
+        (74.02, 18.75),
+        (74.02, 19.10),
+        (73.80, 19.10),
+        (73.80, 18.75)
+    ])
+
+    flood_event_2 = FloodEvent(
+        event_id="FLD-PNE-02",
+        name="Northern Agricultural Belt Monsoon Inundation",
+        geometry=from_shape(flood_poly_2, srid=4326),
+        severity=FloodSeverity.HIGH,
+        event_date=datetime.now(timezone.utc),
+        description="Illustrative monsoon inundation scenario along the Northern Pune horticulture corridor.",
+        is_active=False
+    )
+
+    db.add(flood_event_1)
+    db.add(flood_event_2)
+    db.commit()
+
+    print(f"Successfully seeded database with {len(db_parcels)} Pune parcels, {len(db_markets)} markets, and 2 flood scenarios.")

@@ -3,7 +3,6 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from app.models.food_system import CultivationStatus, EvidenceStatus
 
-# Config Weights Schema
 class EvidenceWeights(BaseModel):
     crop_activity: float = 0.30
     historical_activity: float = 0.25
@@ -11,7 +10,6 @@ class EvidenceWeights(BaseModel):
     parcel_activity: float = 0.15
     administrative_signal: float = 0.10
 
-# Cultivation Evidence Schemas
 class CultivationEvidenceBase(BaseModel):
     crop_activity_score: float
     historical_activity_score: float
@@ -28,7 +26,6 @@ class CultivationEvidenceResponse(CultivationEvidenceBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Market Link Schemas
 class MarketLinkBase(BaseModel):
     dependency_score: float
     estimated_supply_share: float
@@ -42,7 +39,6 @@ class MarketLinkResponse(MarketLinkBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Market Schemas
 class MarketBase(BaseModel):
     market_id: str
     name: str
@@ -64,7 +60,6 @@ class MarketDetailResponse(MarketResponse):
     connected_parcels: List[Dict[str, Any]] = []
     top_crops: List[Dict[str, Any]] = []
 
-# Agricultural Parcel Schemas
 class ParcelBase(BaseModel):
     parcel_id: str
     area_acres: float
@@ -87,8 +82,8 @@ class ParcelDetailResponse(ParcelResponse):
     geometry_geojson: Dict[str, Any]
     evidence: Optional[CultivationEvidenceResponse] = None
     connected_markets: List[MarketLinkResponse] = []
+    active_flood_impact: Optional[Dict[str, Any]] = None
 
-# Overview & Metrics
 class SystemMetricsResponse(BaseModel):
     parcels_monitored: int
     active_cultivation_count: int

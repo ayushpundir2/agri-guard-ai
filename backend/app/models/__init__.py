@@ -6,6 +6,12 @@ from app.models.food_system import (
     CultivationStatus,
     EvidenceStatus
 )
+from app.models.flood import (
+    FloodEvent,
+    ParcelFloodImpact,
+    FloodSeverity,
+    ExposureLevel
+)
 
 __all__ = [
     "AgriculturalParcel",
@@ -13,5 +19,9 @@ __all__ = [
     "MarketLink",
     "CultivationEvidence",
     "CultivationStatus",
-    "EvidenceStatus"
+    "EvidenceStatus",
+    "FloodEvent",
+    "ParcelFloodImpact",
+    "FloodSeverity",
+    "ExposureLevel"
 ]

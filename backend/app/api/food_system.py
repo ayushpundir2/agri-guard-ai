@@ -12,6 +12,7 @@ from app.models.food_system import (
     CultivationEvidence,
     CultivationStatus
 )
+from app.models.flood import FloodEvent, ParcelFloodImpact
 from app.schemas.food_system import (
     ParcelResponse,
     ParcelDetailResponse,
@@ -21,6 +22,7 @@ from app.schemas.food_system import (
     CultivationEvidenceResponse,
     SystemMetricsResponse
 )
+from app.schemas.flood import ParcelFloodImpactResponse
 from app.core.geospatial import geometry_to_geojson
 
 router = APIRouter()
@@ -46,7 +48,6 @@ def get_parcels(
         try:
             min_lon, min_lat, max_lon, max_lat = map(float, bbox.split(","))
             bbox_polygon = box(min_lon, min_lat, max_lon, max_lat)
-            # PostGIS ST_Intersects logic
             query = query.filter(func.ST_Intersects(
                 AgriculturalParcel.geometry,
                 func.ST_SetSRID(func.ST_GeomFromText(bbox_polygon.wkt), 4326)
@@ -77,7 +78,6 @@ def get_parcel_detail(parcel_id: str, db: Session = Depends(get_db)):
 
     geojson_dict = geometry_to_geojson(parcel.geometry)
 
-    # Format connected markets
     market_links = []
     for link in parcel.market_links:
         m_link = MarketLinkResponse.model_validate(link)
@@ -87,6 +87,24 @@ def get_parcel_detail(parcel_id: str, db: Session = Depends(get_db)):
         market_links.append(m_link)
 
     evidence_resp = CultivationEvidenceResponse.model_validate(parcel.evidence) if parcel.evidence else None
+
+    # Check active flood impact
+    active_flood_impact = None
+    active_event = db.query(FloodEvent).filter(FloodEvent.is_active == True).first()
+    if active_event:
+        impact = db.query(ParcelFloodImpact).filter(
+            ParcelFloodImpact.parcel_id == parcel.id,
+            ParcelFloodImpact.flood_event_id == active_event.id
+        ).first()
+        if impact:
+            active_flood_impact = {
+                "flood_event_name": active_event.name,
+                "flood_event_id": active_event.event_id,
+                "overlap_percentage": impact.overlap_percentage,
+                "affected_area_acres": impact.affected_area_acres,
+                "exposure_level": impact.exposure_level.value if hasattr(impact.exposure_level, "value") else str(impact.exposure_level),
+                "estimated_crop_damage": impact.estimated_crop_damage
+            }
 
     detail = ParcelDetailResponse(
         id=parcel.id,
@@ -103,7 +121,8 @@ def get_parcel_detail(parcel_id: str, db: Session = Depends(get_db)):
         evidence_score=parcel.evidence.evidence_score if parcel.evidence else None,
         geometry_geojson=geojson_dict,
         evidence=evidence_resp,
-        connected_markets=market_links
+        connected_markets=market_links,
+        active_flood_impact=active_flood_impact
     )
 
     return detail
@@ -165,8 +184,29 @@ def get_market_detail(market_id: str, db: Session = Depends(get_db)):
 
 @router.get("/map/overview")
 def get_map_overview(db: Session = Depends(get_db)):
-    """Returns a GeoJSON FeatureCollection containing parcels, markets, and supply flow lines."""
     features = []
+
+    # Get active flood event impacts if available
+    active_event = db.query(FloodEvent).filter(FloodEvent.is_active == True).first()
+    impact_map = {}
+    if active_event:
+        impacts = db.query(ParcelFloodImpact).filter(
+            ParcelFloodImpact.flood_event_id == active_event.id
+        ).all()
+        impact_map = {imp.parcel_id: imp for imp in impacts}
+
+        # Add Active Flood Event Polygon Feature
+        event_geom = geometry_to_geojson(active_event.geometry)
+        features.append({
+            "type": "Feature",
+            "geometry": event_geom,
+            "properties": {
+                "feature_type": "flood_event",
+                "event_id": active_event.event_id,
+                "name": active_event.name,
+                "severity": active_event.severity.value if hasattr(active_event.severity, "value") else str(active_event.severity)
+            }
+        })
 
     # 1. Parcels Features
     parcels = db.query(AgriculturalParcel).all()
@@ -175,6 +215,12 @@ def get_map_overview(db: Session = Depends(get_db)):
         ev_score = p.evidence.evidence_score if p.evidence else None
         ev_status = p.evidence.evidence_status if p.evidence else "N/A"
         
+        impact = impact_map.get(p.id)
+        is_affected = impact is not None
+        exposure_lvl = impact.exposure_level.value if (impact and hasattr(impact.exposure_level, "value")) else (str(impact.exposure_level) if impact else "NONE")
+        overlap_pct = impact.overlap_percentage if impact else 0.0
+        crop_damage = impact.estimated_crop_damage if impact else 0.0
+
         features.append({
             "type": "Feature",
             "geometry": geom,
@@ -187,7 +233,11 @@ def get_map_overview(db: Session = Depends(get_db)):
                 "cultivation_status": p.cultivation_status,
                 "crop_activity_score": p.crop_activity_score,
                 "evidence_score": ev_score,
-                "evidence_status": ev_status
+                "evidence_status": ev_status,
+                "is_affected_by_flood": is_affected,
+                "exposure_level": exposure_lvl,
+                "overlap_percentage": overlap_pct,
+                "estimated_crop_damage": crop_damage
             }
         })
 
@@ -209,17 +259,13 @@ def get_map_overview(db: Session = Depends(get_db)):
             }
         })
 
-    # 3. Supply Line Features (connecting active top dependency parcels to markets)
+    # 3. Supply Line Features
     links = db.query(MarketLink).filter(MarketLink.dependency_score >= 50.0).all()
     for link in links:
         if link.parcel and link.market:
             p = link.parcel
             m = link.market
-            # Get centroid of parcel geometry
             p_geom = geometry_to_geojson(p.geometry)
-            # Centroid approximation from bounding box or shape
-            # In geojson coordinates: [lon, lat]
-            # Simple centroid calculation for polygon coordinates:
             coords = p_geom["coordinates"][0]
             avg_lon = sum(c[0] for c in coords) / len(coords)
             avg_lat = sum(c[1] for c in coords) / len(coords)
@@ -258,7 +304,6 @@ def get_system_metrics(db: Session = Depends(get_db)):
     ).count()
     markets_count = db.query(Market).count()
 
-    # Crop counts
     crop_stats = db.query(
         AgriculturalParcel.crop_type,
         func.count(AgriculturalParcel.id)

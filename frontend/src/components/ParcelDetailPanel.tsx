@@ -1,6 +1,6 @@
 import React from 'react';
 import { ParcelDetail } from '@/lib/api';
-import { X, CheckCircle, AlertCircle, HelpCircle } from 'lucide-react';
+import { X, AlertTriangle, CloudRain } from 'lucide-react';
 
 interface ParcelDetailPanelProps {
   parcel: ParcelDetail | null;
@@ -11,6 +11,7 @@ export default function ParcelDetailPanel({ parcel, onClose }: ParcelDetailPanel
   if (!parcel) return null;
 
   const ev = parcel.evidence;
+  const flood = parcel.active_flood_impact;
 
   return (
     <div className="w-full md:w-96 bg-slate-900/95 backdrop-blur border border-slate-800 rounded-xl p-5 shadow-2xl flex flex-col gap-5 text-sm">
@@ -27,11 +28,51 @@ export default function ParcelDetailPanel({ parcel, onClose }: ParcelDetailPanel
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+          className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Active Flood Impact Section (if affected) */}
+      {flood && (
+        <div className="bg-cyan-950/40 border border-cyan-800/80 rounded-lg p-3.5 space-y-2.5 font-mono">
+          <div className="flex items-center gap-2 text-cyan-300 border-b border-cyan-800/60 pb-2">
+            <AlertTriangle className="w-4 h-4 text-cyan-400" />
+            <span className="text-xs font-bold uppercase tracking-wider">Flood Event Impact</span>
+          </div>
+
+          <div className="text-xs space-y-1.5 text-slate-200">
+            <div className="flex justify-between">
+              <span className="text-slate-400">Event:</span>
+              <span className="font-semibold text-cyan-200 truncate max-w-[180px]">{flood.flood_event_name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Flood Exposure:</span>
+              <span className="font-bold text-cyan-300">{flood.overlap_percentage}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Affected Area:</span>
+              <span>{flood.affected_area_acres} Acres</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Exposure Level:</span>
+              <span className={`font-bold px-1.5 py-0.5 rounded text-[10px] uppercase ${
+                flood.exposure_level === 'SEVERE' ? 'bg-red-950 text-red-300 border border-red-800' :
+                flood.exposure_level === 'HIGH' ? 'bg-orange-950 text-orange-300 border border-orange-800' :
+                flood.exposure_level === 'MODERATE' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
+                'bg-cyan-950 text-cyan-300 border border-cyan-800'
+              }`}>
+                {flood.exposure_level}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-1 border-t border-cyan-900/60">
+              <span className="text-slate-400">Est. Crop Damage:</span>
+              <span className="text-base font-bold text-orange-400">{flood.estimated_crop_damage} / 100</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Primary Crop & Specs */}
       <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 font-mono">
@@ -92,14 +133,6 @@ export default function ParcelDetailPanel({ parcel, onClose }: ParcelDetailPanel
           </div>
           <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div className="bg-amber-500 h-full" style={{ width: `${parcel.market_linkage_score}%` }} />
-          </div>
-
-          <div className="flex justify-between items-center pt-1">
-            <span className="text-slate-400">Administrative Signal</span>
-            <span className="text-slate-200">{parcel.administrative_signal_score}</span>
-          </div>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-blue-500 h-full" style={{ width: `${parcel.administrative_signal_score}%` }} />
           </div>
         </div>
 

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import HealthBadge from '@/components/HealthBadge';
 import MapView from '@/components/MapView';
 import MetricsBar from '@/components/MetricsBar';
+import DisasterMetricsBar from '@/components/DisasterMetricsBar';
+import FloodScenarioControl from '@/components/FloodScenarioControl';
 import ParcelDetailPanel from '@/components/ParcelDetailPanel';
 import MarketDetailPanel from '@/components/MarketDetailPanel';
 import {
@@ -11,38 +13,69 @@ import {
   fetchMapOverview,
   fetchParcelDetail,
   fetchMarketDetail,
+  fetchFloodEvents,
+  simulateFloodEvent,
+  resetFloodScenario,
+  fetchFloodOverview,
   SystemMetrics,
   ParcelDetail,
-  MarketDetail
+  MarketDetail,
+  FloodEvent,
+  FloodOverview
 } from '@/lib/api';
 
 export default function Home() {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [mapGeoJson, setMapGeoJson] = useState<any>(null);
-  
+  const [scenarios, setScenarios] = useState<FloodEvent[]>([]);
+  const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
+  const [simulating, setSimulating] = useState<boolean>(false);
+
   const [selectedParcel, setSelectedParcel] = useState<ParcelDetail | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<MarketDetail | null>(null);
 
   useEffect(() => {
     async function loadData() {
-      const [mRes, geoRes] = await Promise.all([
+      const [mRes, geoRes, floodScenarios, floodOverviewRes] = await Promise.all([
         fetchSystemMetrics(),
-        fetchMapOverview()
+        fetchMapOverview(),
+        fetchFloodEvents(),
+        fetchFloodOverview()
       ]);
       setMetrics(mRes);
       setMapGeoJson(geoRes);
+      setScenarios(floodScenarios);
+      setFloodOverview(floodOverviewRes);
     }
     loadData();
   }, []);
 
+  const handleSimulateScenario = async (eventId: string) => {
+    setSimulating(true);
+    const ov = await simulateFloodEvent(eventId);
+    setFloodOverview(ov);
+    const updatedGeoJson = await fetchMapOverview();
+    setMapGeoJson(updatedGeoJson);
+    setSimulating(false);
+  };
+
+  const handleResetScenario = async () => {
+    setSimulating(true);
+    const ov = await resetFloodScenario();
+    setFloodOverview(ov);
+    const updatedGeoJson = await fetchMapOverview();
+    setMapGeoJson(updatedGeoJson);
+    setSimulating(false);
+  };
+
   const handleSelectParcel = async (parcelId: string) => {
-    setSelectedMarket(null); // dismiss market panel
+    setSelectedMarket(null);
     const detail = await fetchParcelDetail(parcelId);
     setSelectedParcel(detail);
   };
 
   const handleSelectMarket = async (marketId: string) => {
-    setSelectedParcel(null); // dismiss parcel panel
+    setSelectedParcel(null);
     const detail = await fetchMarketDetail(marketId);
     setSelectedMarket(detail);
   };
@@ -67,8 +100,21 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Dynamic Metrics Header */}
-      <MetricsBar metrics={metrics} />
+      {/* Flood Simulation Controller */}
+      <FloodScenarioControl
+        scenarios={scenarios}
+        activeOverview={floodOverview}
+        onSimulate={handleSimulateScenario}
+        onReset={handleResetScenario}
+        loading={simulating}
+      />
+
+      {/* Dynamic Metrics Headers */}
+      {floodOverview?.status === 'ACTIVE_FLOOD' ? (
+        <DisasterMetricsBar overview={floodOverview} />
+      ) : (
+        <MetricsBar metrics={metrics} />
+      )}
 
       {/* Main Map + Inspection Panels Area */}
       <div className="relative flex flex-col lg:flex-row gap-6 h-[650px]">
@@ -103,7 +149,7 @@ export default function Home() {
       {/* Mandatory Data Honesty Disclaimer Footer */}
       <footer className="mt-auto border-t border-slate-800 pt-4 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
         <p className="text-amber-400/90">
-          <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset — not official cadastral boundaries or verified ownership.
+          <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & simulations — not official cadastral boundaries, historical predictions, or legal ownership proof.
         </p>
         <p>Fund My Crazy — &ldquo;Surprise Us!&rdquo; Competition Project</p>
       </footer>

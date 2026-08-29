@@ -28,6 +28,7 @@ export default function MapView({
   const [showFarms, setShowFarms] = useState(true);
   const [showMarkets, setShowMarkets] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
+  const [showFlood, setShowFlood] = useState(true);
 
   // Initialize map once
   useEffect(() => {
@@ -47,13 +48,37 @@ export default function MapView({
     map.current.on('load', () => {
       if (!map.current) return;
 
-      // Add empty source for dynamic data updates
       map.current.addSource('food-system', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] }
       });
 
-      // 1. Supply Line Layer
+      // 1. Flood Scenario Layer Fill
+      map.current.addLayer({
+        id: 'flood-polygon-fill-layer',
+        type: 'fill',
+        source: 'food-system',
+        filter: ['==', ['get', 'feature_type'], 'flood_event'],
+        paint: {
+          'fill-color': '#06b6d4', // Cyan water fill
+          'fill-opacity': 0.35
+        }
+      });
+
+      // 2. Flood Scenario Outline
+      map.current.addLayer({
+        id: 'flood-polygon-outline-layer',
+        type: 'line',
+        source: 'food-system',
+        filter: ['==', ['get', 'feature_type'], 'flood_event'],
+        paint: {
+          'line-color': '#0891b2',
+          'line-width': 2.5,
+          'line-dasharray': [3, 2]
+        }
+      });
+
+      // 3. Supply Line Layer
       map.current.addLayer({
         id: 'supply-links-layer',
         type: 'line',
@@ -62,12 +87,12 @@ export default function MapView({
         paint: {
           'line-color': '#f59e0b',
           'line-width': 1.5,
-          'line-opacity': 0.6,
+          'line-opacity': 0.5,
           'line-dasharray': [2, 2]
         }
       });
 
-      // 2. Agricultural Parcels Polygon Fill Layer
+      // 4. Agricultural Parcels Polygon Fill Layer (Flood-aware styling)
       map.current.addLayer({
         id: 'parcels-fill-layer',
         type: 'fill',
@@ -75,17 +100,29 @@ export default function MapView({
         filter: ['==', ['get', 'feature_type'], 'parcel'],
         paint: {
           'fill-color': [
-            'match',
-            ['get', 'cultivation_status'],
-            'active', '#10b981',
-            'inactive', '#ef4444',
-            '#f59e0b'
+            'case',
+            ['boolean', ['get', 'is_affected_by_flood'], false],
+            [
+              'match',
+              ['get', 'exposure_level'],
+              'SEVERE', '#dc2626',   // Red
+              'HIGH', '#f97316',     // Orange
+              'MODERATE', '#f59e0b', // Amber
+              '#06b6d4'              // Cyan/Light Blue for Low
+            ],
+            [
+              'match',
+              ['get', 'cultivation_status'],
+              'active', '#10b981',
+              'inactive', '#ef4444',
+              '#f59e0b'
+            ]
           ],
-          'fill-opacity': 0.55
+          'fill-opacity': 0.65
         }
       });
 
-      // 3. Agricultural Parcels Outline Layer
+      // 5. Agricultural Parcels Outline Layer
       map.current.addLayer({
         id: 'parcels-outline-layer',
         type: 'line',
@@ -97,7 +134,7 @@ export default function MapView({
         }
       });
 
-      // 4. Wholesale Market Points
+      // 6. Wholesale Market Points
       map.current.addLayer({
         id: 'markets-point-layer',
         type: 'circle',
@@ -111,7 +148,7 @@ export default function MapView({
         }
       });
 
-      // Event handlers for interactivity
+      // Click handlers
       map.current.on('click', 'parcels-fill-layer', (e) => {
         if (e.features && e.features[0]) {
           const parcelId = e.features[0].properties.parcel_id;
@@ -126,7 +163,6 @@ export default function MapView({
         }
       });
 
-      // Cursor styling
       const setCursorPointer = () => { if (map.current) map.current.getCanvas().style.cursor = 'pointer'; };
       const resetCursor = () => { if (map.current) map.current.getCanvas().style.cursor = ''; };
 
@@ -142,7 +178,7 @@ export default function MapView({
     };
   }, [lng, lat, zoom, onSelectParcel, onSelectMarket]);
 
-  // Update GeoJSON source when data changes
+  // Update GeoJSON source
   useEffect(() => {
     if (!map.current || !geoJsonData) return;
     const source = map.current.getSource('food-system') as maplibregl.GeoJSONSource;
@@ -151,7 +187,7 @@ export default function MapView({
     }
   }, [geoJsonData]);
 
-  // Layer visibility toggles
+  // Visibility toggles
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded()) return;
 
@@ -165,13 +201,17 @@ export default function MapView({
     if (map.current.getLayer('supply-links-layer')) {
       map.current.setLayoutProperty('supply-links-layer', 'visibility', showConnections ? 'visible' : 'none');
     }
-  }, [showFarms, showMarkets, showConnections]);
+    if (map.current.getLayer('flood-polygon-fill-layer')) {
+      map.current.setLayoutProperty('flood-polygon-fill-layer', 'visibility', showFlood ? 'visible' : 'none');
+      map.current.setLayoutProperty('flood-polygon-outline-layer', 'visibility', showFlood ? 'visible' : 'none');
+    }
+  }, [showFarms, showMarkets, showConnections, showFlood]);
 
   return (
     <div className="relative w-full h-full min-h-[450px] rounded-xl overflow-hidden border border-slate-800 shadow-xl">
       <div ref={mapContainer} className="absolute inset-0" />
 
-      {/* Map Layer Controls overlay */}
+      {/* Map Layer Controls */}
       <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur border border-slate-800 p-3 rounded-lg shadow-lg z-10 text-xs font-mono space-y-2">
         <div className="flex items-center gap-1.5 text-slate-300 font-bold border-b border-slate-800 pb-1.5 mb-2">
           <Layers className="w-3.5 h-3.5" />
@@ -210,6 +250,19 @@ export default function MapView({
           <span className="w-4 h-0.5 border-b border-dashed border-amber-400 inline-block" />
           Supply Flows
         </label>
+
+        {geoJsonData?.features?.some((f: any) => f.properties.feature_type === 'flood_event') && (
+          <label className="flex items-center gap-2 text-cyan-300 cursor-pointer hover:text-white pt-1 border-t border-slate-800">
+            <input
+              type="checkbox"
+              checked={showFlood}
+              onChange={(e) => setShowFlood(e.target.checked)}
+              className="rounded border-slate-700 bg-slate-800 text-cyan-500 focus:ring-0"
+            />
+            <span className="w-2.5 h-2.5 rounded bg-cyan-400 inline-block" />
+            Flood Inundation Zone
+          </label>
+        )}
       </div>
     </div>
   );
