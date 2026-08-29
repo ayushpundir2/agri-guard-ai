@@ -1,3 +1,4 @@
+@import 'maplibre-gl/dist/maplibre-gl.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,4 +12,8 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.maplibregl-map {
+  font-family: inherit;
 }

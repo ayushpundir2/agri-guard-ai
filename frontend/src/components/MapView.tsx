@@ -14,14 +14,17 @@ interface MapViewProps {
   zoom?: number;
 }
 
-// Robust CARTO Dark Matter raster style for MapLibre
+// CARTO Dark Matter raster style specification for MapLibre
 const DEFAULT_DARK_MAP_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
     'carto-dark': {
       type: 'raster',
       tiles: [
-        'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
       ],
       tileSize: 256,
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
@@ -55,12 +58,39 @@ export default function MapView({
   const [showConnections, setShowConnections] = useState(true);
   const [showFlood, setShowFlood] = useState(true);
 
-  // Keep geoJsonDataRef current so map 'load' event uses latest data
+  // Keep geoJsonDataRef current
   useEffect(() => {
     geoJsonDataRef.current = geoJsonData;
   }, [geoJsonData]);
 
-  // Map Initialization
+  // Helper to fit map camera bounds to Pune GeoJSON features
+  const fitMapToBounds = (mapInst: maplibregl.Map, data: any) => {
+    if (!data || !data.features || data.features.length === 0) return;
+    try {
+      const bounds = new maplibregl.LngLatBounds();
+      let hasCoords = false;
+
+      data.features.forEach((f: any) => {
+        if (f.geometry && f.geometry.type === 'Polygon' && f.geometry.coordinates[0]) {
+          f.geometry.coordinates[0].forEach((coord: number[]) => {
+            bounds.extend([coord[0], coord[1]]);
+            hasCoords = true;
+          });
+        } else if (f.geometry && f.geometry.type === 'Point' && f.geometry.coordinates) {
+          bounds.extend([f.geometry.coordinates[0], f.geometry.coordinates[1]]);
+          hasCoords = true;
+        }
+      });
+
+      if (hasCoords && !bounds.isEmpty()) {
+        mapInst.fitBounds(bounds, { padding: 40, maxZoom: 12, duration: 1000 });
+      }
+    } catch (err) {
+      console.warn('Map bounds fit warning:', err);
+    }
+  };
+
+  // Initialize Map
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
@@ -77,6 +107,10 @@ export default function MapView({
     map.current = mapInstance;
 
     mapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    mapInstance.on('error', (e) => {
+      console.warn('MapLibre internal notice:', e.error);
+    });
 
     mapInstance.on('load', () => {
       if (!map.current) return;
@@ -210,7 +244,7 @@ export default function MapView({
         });
       }
 
-      // Click Events
+      // Click Handlers
       map.current.on('click', 'parcels-fill-layer', (e) => {
         if (e.features && e.features[0]) {
           const parcelId = e.features[0].properties.parcel_id;
@@ -233,11 +267,15 @@ export default function MapView({
       map.current.on('mouseenter', 'markets-point-layer', setCursorPointer);
       map.current.on('mouseleave', 'markets-point-layer', resetCursor);
 
-      // Trigger map resize check
+      // Fit camera bounds if features exist on load
+      if (currentData && currentData.features && currentData.features.length > 0) {
+        fitMapToBounds(mapInstance, currentData);
+      }
+
       mapInstance.resize();
     });
 
-    // ResizeObserver to handle container layout changes
+    // Handle container resize
     const resizeObserver = new ResizeObserver(() => {
       if (map.current) {
         map.current.resize();
@@ -255,13 +293,17 @@ export default function MapView({
     };
   }, [lng, lat, zoom, onSelectParcel, onSelectMarket]);
 
-  // Update GeoJSON source when data changes
+  // Update GeoJSON source & fit bounds when geoJsonData prop changes
   useEffect(() => {
     if (!map.current || !geoJsonData) return;
 
     const source = map.current.getSource('food-system') as maplibregl.GeoJSONSource;
     if (source) {
       source.setData(geoJsonData);
+      if (geoJsonData.features && geoJsonData.features.length > 0) {
+        fitMapToBounds(map.current, geoJsonData);
+      }
+      map.current.triggerRepaint();
     }
   }, [geoJsonData]);
 
@@ -286,7 +328,7 @@ export default function MapView({
   }, [showFarms, showMarkets, showConnections, showFlood]);
 
   return (
-    <div className="relative w-full h-full min-h-[480px] rounded-2xl overflow-hidden border border-slate-800/80 shadow-2xl bg-slate-950">
+    <div className="relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden border border-slate-800/80 shadow-2xl bg-slate-950">
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
 
       {/* Map Layer Controls */}
