@@ -28,7 +28,6 @@ async def lifespan(app: FastAPI):
                 conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
             except Exception:
                 conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;"))
-            # Drop conflicting manual index if previously created
             try:
                 conn.execute(text("DROP INDEX IF EXISTS idx_flood_events_geometry;"))
             except Exception:
@@ -49,10 +48,10 @@ async def lifespan(app: FastAPI):
     # 3. Seed database
     db = SessionLocal()
     try:
-        from app.models.food_system import Market
-        market_count = db.query(Market).count()
-        if market_count == 0:
-            print("Production database empty. Seeding Pune prototype food system dataset...")
+        from app.models.food_system import AgriculturalParcel
+        parcel_count = db.query(AgriculturalParcel).count()
+        if parcel_count == 0:
+            print("Parcels empty. Seeding Pune prototype food system dataset...")
             seed_database(db, num_parcels=75)
             print("Production database seeded successfully!")
     except Exception as e:
