@@ -92,17 +92,6 @@ uvicorn app.main:app --reload --port 8000
 Backend API: [http://localhost:8000](http://localhost:8000)  
 Swagger Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-### 4. Frontend Setup & Run
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Landing Page: [http://localhost:3000](http://localhost:3000)  
-Command Center: [http://localhost:3000/command-center](http://localhost:3000/command-center)
-
 ---
 
 ## Render Deployment Guide
@@ -114,32 +103,6 @@ AgriGuard-AI is configured for multi-service deployment on Render using the incl
 1. **Database:** PostgreSQL instance with PostGIS (`agriguard-db`)
 2. **Backend Web Service:** FastAPI Service (`agriguard-ai-python-api`)
 3. **Frontend Web Service:** Next.js Service (`agriguard-ai-frontend`)
-
-### Render Environment Variables
-
-#### Backend Environment Variables:
-- `PORT`: Handled automatically by Render (binds to `0.0.0.0`)
-- `ENVIRONMENT`: `production`
-- `DATABASE_URL`: Automatically populated from `agriguard-db` connection string
-- `CORS_ORIGINS`: Comma-separated allowed origins e.g. `https://agriguard-ai-frontend.onrender.com,http://localhost:3000`
-- `GEMINI_API_KEY`: Server-side Gemini API key (set in Render Dashboard under secret environment variables)
-
-#### Frontend Environment Variables:
-- `NEXT_PUBLIC_API_URL`: Backend service URL e.g. `https://agriguard-ai-python-api.onrender.com`
-
----
-
-### Production Database Initialization & Seed Procedure
-
-On a fresh Render PostgreSQL instance:
-
-1. **Enable PostGIS & Create Tables:**
-   Connect to the backend service Shell or run command via Render jobs:
-   ```bash
-   cd backend
-   python seed.py
-   ```
-2. `seed.py` will execute `CREATE EXTENSION IF NOT EXISTS postgis;`, create all required tables (`agricultural_parcels`, `markets`, `market_links`, `cultivation_evidence`, `flood_events`, `parcel_flood_impacts`, `food_risk_assessments`, `market_risk_assessments`, `recovery_priorities`), and seed the prototype Pune food system dataset.
 
 ---
 
