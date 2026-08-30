@@ -419,7 +419,18 @@ export async function fetchRecoveryPriorities(limit: number = 20, level?: string
   }
 }
 
-export async function askGeminiAnalyst(question: string, parcelId?: string, marketId?: string): Promise<AIAnalysisResult | null> {
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function askGeminiAnalyst(
+  question: string,
+  parcelId?: string,
+  marketId?: string,
+  language: string = 'en',
+  history?: ChatMessage[]
+): Promise<AIAnalysisResult | null> {
   try {
     const res = await fetch(`${API_BASE}/api/ai/analyze`, {
       method: 'POST',
@@ -427,7 +438,9 @@ export async function askGeminiAnalyst(question: string, parcelId?: string, mark
       body: JSON.stringify({
         question,
         parcel_id: parcelId,
-        market_id: marketId
+        market_id: marketId,
+        language,
+        history
       }),
       cache: 'no-store'
     });

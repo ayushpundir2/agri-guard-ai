@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "overview": "आढावा",
+    "foodMap": "अन्न नकाशा",
+    "markets": "घाऊक बाजार",
+    "riskAnalysis": "धोका विश्लेषण",
+    "recovery": "पुनर्प्राप्ती प्राधान्यक्रम",
+    "aiAnalyst": "एआय विश्लेषक",
+    "cityAction": "शहर कृती",
+    "title": "AgriGuard नागरी कामकाज",
+    "tagline": "तुमच्या शहराला काय अन्न पुरवते ते जाणून घ्या. ते अपयशी ठरल्यास काय होते ते जाणून घ्या.",
+    "commandCenter": "कमांड सेंटर"
+  },
+  "actions": {
+    "view": "पहा",
+    "analyze": "विश्लेषण करा",
+    "simulate": "सिम्युलेट करा",
+    "reset": "रीसेट करा",
+    "explore": "शोधा",
+    "priority": "प्राधान्य",
+    "details": "तपशील",
+    "back": "मागे",
+    "close": "बंद करा",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट"
+  },
+  "states": {
+    "normal": "सामान्य परिस्थिती",
+    "warning": "इशारा",
+    "critical": "गंभीर धोका",
+    "activeFlood": "सक्रिय आपत्ती",
+    "loading": "लोड होत आहे...",
+    "error": "त्रुटी"
+  },
+  "risk": {
+    "foodSupplyRisk": "अन्न पुरवठा धोका",
+    "affectedParcels": "प्रभावित पार्सल",
+    "productionLoss": "उत्पादन नुकसान",
+    "marketExposure": "बाजार संपर्क",
+    "recoveryPriority": "पुनर्प्राप्ती प्राधान्य"
+  },
+  "ai": {
+    "askAgriGuard": "AgriGuard विश्लेषकाला विचारा",
+    "subtitle": "एआय-सहाय्यित शहर लवचिकता विचार स्तर",
+    "analysis": "विश्लेषण",
+    "keyEvidence": "प्रमुख पुरावा",
+    "recommendedAction": "शिफारस केलेल्या कृती",
+    "executiveOverview": "कार्यकारी आढावा",
+    "analyticalReasoning": "विश्लेषणात्मक युक्तिवाद",
+    "disclaimer": "पद्धत अस्वीकरण",
+    "reasoning": "विश्लेषण करत आहे...",
+    "placeholder": "अन्न धोके, बाजार प्रभाव किंवा पुनर्प्राप्तीबद्दल विचारा...",
+    "suggested": {
+      "cityPrioritize": "आत्ता शहराने कोणत्या भागाला प्राधान्य द्यावे?",
+      "whyCritical": "अन्न पुरवठा धोका जास्त का आहे?",
+      "exposedMarkets": "कोणती घाऊक बाजारपेठ सर्वाधिक प्रभावित आहे?",
+      "recoverFirst": "आम्ही कोणत्या कृषी पार्सलची प्रथम पुनर्प्राप्ती करावी?",
+      "floodImpact": "सध्याच्या पूर परिस्थितीचे काय परिणाम आहेत?"
+    }
+  },
+  "cityAction": {
+    "verify": "पडताळणी करा",
+    "protect": "संरक्षण करा",
+    "prioritize": "प्राधान्य द्या",
+    "recover": "पुनर्प्राप्त करा"
+  }
+}

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   LayoutDashboard,
   MapPin,
@@ -20,15 +21,16 @@ interface SidebarProps {
 
 export default function Sidebar({ systemStatus = 'All Systems Operational' }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const navItems = [
-    { href: '/command-center', label: 'Overview', icon: LayoutDashboard },
-    { href: '/food-map', label: 'Food Map', icon: MapPin },
-    { href: '/markets', label: 'Markets', icon: Store },
-    { href: '/risk-analysis', label: 'Risk Analysis', icon: ShieldAlert },
-    { href: '/recovery', label: 'Recovery Priorities', icon: ListOrdered },
-    { href: '/ai-analyst', label: 'AI Analyst', icon: Bot },
-    { href: '/city-action', label: 'City Action', icon: Activity },
+    { href: '/command-center', label: t('nav.overview', 'Overview'), icon: LayoutDashboard },
+    { href: '/food-map', label: t('nav.foodMap', 'Food Map'), icon: MapPin },
+    { href: '/markets', label: t('nav.markets', 'Markets'), icon: Store },
+    { href: '/risk-analysis', label: t('nav.riskAnalysis', 'Risk Analysis'), icon: ShieldAlert },
+    { href: '/recovery', label: t('nav.recovery', 'Recovery Priorities'), icon: ListOrdered },
+    { href: '/ai-analyst', label: t('nav.aiAnalyst', 'AI Analyst'), icon: Bot },
+    { href: '/city-action', label: t('nav.cityAction', 'City Action'), icon: Activity },
   ];
 
   return (

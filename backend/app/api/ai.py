@@ -21,10 +21,15 @@ def analyze_with_gemini(req: QuestionRequest, db: Session = Depends(get_db)):
         market_id=req.market_id
     )
 
+    # Convert history if provided
+    history_dicts = [h.model_dump() for h in req.history] if req.history else None
+
     # 2. Call Gemini Service (or fallback if API key unconfigured)
     result = GeminiService.generate_analysis(
         user_question=req.question.strip(),
-        system_context=context
+        system_context=context,
+        language=req.language or "en",
+        history=history_dicts
     )
 
     analysis_data = result.get("analysis") or result.get("fallback_analysis")

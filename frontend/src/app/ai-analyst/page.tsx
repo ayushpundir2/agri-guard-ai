@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import AppShell from '@/components/AppShell';
 import GeminiAnalystPanel from '@/components/GeminiAnalystPanel';
+import { useLanguage } from '@/context/LanguageContext';
 import { fetchFloodOverview, fetchRiskOverview, FloodOverview, FoodRiskOverview } from '@/lib/api';
 
 export default function AIAnalystPage() {
+  const { t } = useLanguage();
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
   const [riskOverview, setRiskOverview] = useState<FoodRiskOverview | null>(null);
 
@@ -26,9 +28,11 @@ export default function AIAnalystPage() {
       disasterStatus={floodOverview?.status || 'NORMAL'}
       activeEventName={floodOverview?.active_event?.name}
     >
-      <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold font-mono text-white">Gemini Decision-Support Analyst Workspace</h2>
-        <p className="text-xs text-slate-400 font-sans">
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-xl font-bold font-sans text-civic-forest">
+          {t('nav.aiAnalyst', 'AI Analyst')} — Food-System Intelligence Assistant
+        </h2>
+        <p className="text-xs text-civic-charcoal/80 font-sans leading-relaxed">
           Server-side LLM reasoning layer synthesizing deterministic AgriGuard risk models into actionable municipal recovery guidance.
         </p>
       </div>

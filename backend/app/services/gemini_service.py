@@ -25,19 +25,41 @@ class GeminiService:
         return os.environ.get("GEMINI_API_KEY") or settings.GEMINI_API_KEY
 
     @classmethod
-    def generate_analysis(cls, user_question: str, system_context: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_analysis(
+        cls,
+        user_question: str,
+        system_context: Dict[str, Any],
+        language: str = "en",
+        history: Optional[list] = None
+    ) -> Dict[str, Any]:
         api_key = cls.get_api_key()
         
         if not api_key or api_key == "your_gemini_api_key_here":
             return {
                 "success": False,
                 "error": "Gemini API key is not configured. Set GEMINI_API_KEY in server environment.",
-                "fallback_analysis": cls._generate_rule_based_fallback(user_question, system_context)
+                "fallback_analysis": cls._generate_rule_based_fallback(user_question, system_context, language)
             }
+
+        lang_instruction = "Respond in English."
+        if language == "hi":
+            lang_instruction = "Respond in Hindi (हिन्दी). Keep Parcel IDs (e.g. PARCEL-PNE-037), Market IDs/names, numbers, crop technical codes, and strict numerical values exact and unchanged."
+        elif language == "mr":
+            lang_instruction = "Respond in Marathi (मराठी). Keep Parcel IDs (e.g. PARCEL-PNE-037), Market IDs/names, numbers, crop technical codes, and strict numerical values exact and unchanged."
+
+        conversation_str = ""
+        if history and len(history) > 0:
+            formatted_turns = []
+            for item in history[-6:]:  # Keep recent context
+                role = "User" if item.get("role") == "user" else "Assistant"
+                formatted_turns.append(f"{role}: {item.get('content')}")
+            conversation_str = "Recent Conversation History:\n" + "\n".join(formatted_turns) + "\n\n"
 
         prompt = f"""
 Current AgriGuard System State Context (Pune Food Resilience Platform):
 {json.dumps(system_context, indent=2)}
+
+{conversation_str}Language Preference: {lang_instruction}
 
 User Question:
 "{user_question}"
@@ -94,11 +116,63 @@ Please analyze the question strictly using the provided context and system instr
             }
 
     @staticmethod
-    def _generate_rule_based_fallback(question: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_rule_based_fallback(question: str, context: Dict[str, Any], language: str = "en") -> Dict[str, Any]:
         """Provides deterministic fallback when Gemini API key is unconfigured or unreachable."""
         active_disaster = context.get("active_disaster")
         risk = context.get("city_food_supply_risk")
         entity = context.get("inspected_entity")
+
+        if language == "hi":
+            if not active_disaster:
+                return {
+                    "summary": "AgriGuard सामान्य परिस्थितियों में काम कर रहा है।",
+                    "reasoning": "कोई सक्रिय बाढ़ परिदृश्य सिम्युलेटेड नहीं है। पुणे के सभी कृषि क्षेत्र और थोक बाजार सामान्य आपूर्ति की रिपोर्ट करते हैं।",
+                    "recommended_actions": [
+                        "नियंत्रक से एक बाढ़ आपदा परिदृश्य चुनें।",
+                        "स्थानिक प्रभाव का विश्लेषण करने के लिए जलभराव का अनुकरण करें।",
+                        "शहर की खाद्य आपूर्ति संवेदनशीलता का मूल्यांकन करने के लिए जोखिम विश्लेषण चलाएं।"
+                    ],
+                    "caveats": "सांकेतिक प्रोटोटाइप डेटासेट — आधिकारिक रिकॉर्ड नहीं।"
+                }
+            risk_score = risk.get("overall_risk_score", 0.0) if risk else "N/A"
+            risk_lvl = risk.get("risk_level", "NORMAL") if risk else "NORMAL"
+            prod_loss = risk.get("affected_production_loss_tons", 0.0) if risk else 0.0
+            return {
+                "summary": f"सक्रिय बाढ़ परिदृश्य '{active_disaster.get('event_name')}' ने {risk_score}/100 ({risk_lvl}) का खाद्य जोखिम उत्पन्न किया।",
+                "reasoning": f"अनुमानित फसल उत्पादन हानि {active_disaster.get('affected_parcels_count')} कृषि पार्सल में {prod_loss} मीट्रिक टन है।",
+                "recommended_actions": [
+                    "आपातकालीन जल निकासी और पुनर्प्राप्ति सहायता के लिए शीर्ष महत्वपूर्ण पार्सल को प्राथमिकता दें।",
+                    "प्रभावित उपज श्रेणियों के लिए वैकल्पिक थोक आपूर्ति लाइनें स्थापित करें।",
+                    "उच्च प्रमाण वाले खेती वाले क्षेत्रों का प्रशासनिक सत्यापन करें।"
+                ],
+                "caveats": "सांकेतिक प्रोटोटाइप आपदा परिदृश्य और अनुमान — पद्धति प्रदर्शन।"
+            }
+
+        if language == "mr":
+            if not active_disaster:
+                return {
+                    "summary": "AgriGuard सामान्य स्थितीत कार्यरत आहे.",
+                    "reasoning": "कोणतीही सक्रिय पूर परिस्थिती नाही. पुण्यातील सर्व शेती क्षेत्र आणि घाऊक बाजारपेठा सामान्य पुरवठ्याची नोंद करतात.",
+                    "recommended_actions": [
+                        "नियंत्रकामधून पूर आपत्ती निवडा.",
+                        "स्थानिक प्रभावाचे विश्लेषण करण्यासाठी पूर परिस्थितीचे सिम्युलेशन करा.",
+                        "शहर पुरवठा धोक्याचे मूल्यमापन करण्यासाठी अन्न धोका विश्लेषण चालवा."
+                    ],
+                    "caveats": "प्रारूप डेटासेट — अधिकृत नोंदी नाहीत."
+                }
+            risk_score = risk.get("overall_risk_score", 0.0) if risk else "N/A"
+            risk_lvl = risk.get("risk_level", "NORMAL") if risk else "NORMAL"
+            prod_loss = risk.get("affected_production_loss_tons", 0.0) if risk else 0.0
+            return {
+                "summary": f"सक्रिय पूर परिस्थिती '{active_disaster.get('event_name')}' मुळे शहरातील अन्न पुरवठा धोका {risk_score}/100 ({risk_lvl}) निर्माण झाला.",
+                "reasoning": f"अंदाजे पीक उत्पादन नुकसान {active_disaster.get('affected_parcels_count')} कृषी पार्सलमध्ये {prod_loss} मेट्रिक टन आहे.",
+                "recommended_actions": [
+                    "तातडीच्या पाण्याचा निचरा करण्यासाठी आणि पुनर्रचना सहाय्यासाठी सर्वोच्च पार्सलला प्राधान्य द्या.",
+                    "प्रभावित उत्पादनांसाठी पर्यायी घाऊक पुरवठा मार्ग स्थापित करा.",
+                    "उच्च पुरावा असलेल्या लागवड क्षेत्रांचे प्रशासकीय पडताळणी करा."
+                ],
+                "caveats": "प्रारूप आपत्ती परिस्थिती आणि अंदाज — प्रात्यक्षिक."
+            }
 
         if not active_disaster:
             return {

@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "foodMap": "Food Map",
+    "markets": "Markets",
+    "riskAnalysis": "Risk Analysis",
+    "recovery": "Recovery Priorities",
+    "aiAnalyst": "AI Analyst",
+    "cityAction": "City Action",
+    "title": "AgriGuard Civic Operations",
+    "tagline": "Know what feeds your city. Know what happens when it fails.",
+    "commandCenter": "Command Center"
+  },
+  "actions": {
+    "view": "View",
+    "analyze": "Analyze",
+    "simulate": "Simulate",
+    "reset": "Reset",
+    "explore": "Explore",
+    "priority": "Priority",
+    "details": "Details",
+    "back": "Back",
+    "close": "Close",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  },
+  "states": {
+    "normal": "Normal Conditions",
+    "warning": "Warning",
+    "critical": "Critical Risk",
+    "activeFlood": "Active Disaster",
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "risk": {
+    "foodSupplyRisk": "Food Supply Risk",
+    "affectedParcels": "Affected Parcels",
+    "productionLoss": "Production Loss",
+    "marketExposure": "Market Exposure",
+    "recoveryPriority": "Recovery Priority"
+  },
+  "ai": {
+    "askAgriGuard": "Ask AgriGuard Analyst",
+    "subtitle": "AI-assisted city resilience reasoning layer",
+    "analysis": "Analysis",
+    "keyEvidence": "Key Evidence",
+    "recommendedAction": "Recommended Actions",
+    "executiveOverview": "Executive Overview",
+    "analyticalReasoning": "Analytical Reasoning",
+    "disclaimer": "Methodology Disclaimer",
+    "reasoning": "Reasoning...",
+    "placeholder": "Ask AgriGuard about food risks, market impact, or recovery actions...",
+    "suggested": {
+      "cityPrioritize": "What should the city prioritize right now?",
+      "whyCritical": "Why is the food-supply risk HIGH?",
+      "exposedMarkets": "Which wholesale market is most exposed?",
+      "recoverFirst": "Which agricultural parcel should we recover first?",
+      "floodImpact": "What are the consequences of the current flood scenario?"
+    }
+  },
+  "cityAction": {
+    "verify": "Verify",
+    "protect": "Protect",
+    "prioritize": "Prioritize",
+    "recover": "Recover"
+  }
+}

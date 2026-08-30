@@ -2,10 +2,16 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
+class QuestionMessage(BaseModel):
+    role: str
+    content: str
+
 class QuestionRequest(BaseModel):
     question: str = Field(..., json_schema_extra={"example": "What should the city prioritize?"})
     parcel_id: Optional[str] = None
     market_id: Optional[str] = None
+    language: Optional[str] = "en"
+    history: Optional[List[QuestionMessage]] = None
 
 class AnalysisContent(BaseModel):
     summary: str

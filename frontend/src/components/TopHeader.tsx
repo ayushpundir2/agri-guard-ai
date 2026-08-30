@@ -2,7 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import HealthBadge from '@/components/HealthBadge';
 import { useAuth } from '@/context/AuthContext';
-import { ShieldAlert, CheckCircle2, MapPin, User as UserIcon, LogOut } from 'lucide-react';
+import { useLanguage, LanguageCode } from '@/context/LanguageContext';
+import { ShieldAlert, CheckCircle2, MapPin, User as UserIcon, LogOut, Globe } from 'lucide-react';
 
 interface TopHeaderProps {
   disasterStatus: 'NORMAL' | 'ACTIVE_FLOOD';
@@ -12,6 +13,7 @@ interface TopHeaderProps {
 export default function TopHeader({ disasterStatus, activeEventName }: TopHeaderProps) {
   const isFloodActive = disasterStatus === 'ACTIVE_FLOOD';
   const { user, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <header className="h-16 bg-civic-card/90 backdrop-blur border-b border-civic-neutral px-6 flex items-center justify-between z-30 select-none shadow-xs">
@@ -19,10 +21,10 @@ export default function TopHeader({ disasterStatus, activeEventName }: TopHeader
       <div className="flex items-center gap-6">
         <div>
           <h2 className="text-sm font-bold text-civic-forest tracking-wide font-sans">
-            AgriGuard Civic Operations
+            {t('nav.title', 'AgriGuard Civic Operations')}
           </h2>
           <p className="text-[11px] text-civic-charcoal/70 font-sans">
-            Know what feeds your city. Know what happens when it fails.
+            {t('nav.tagline', 'Know what feeds your city. Know what happens when it fails.')}
           </p>
         </div>
       </div>
@@ -35,15 +37,30 @@ export default function TopHeader({ disasterStatus, activeEventName }: TopHeader
 
       {/* Right User & Live Status */}
       <div className="flex items-center gap-3">
+        {/* Global Language Selector */}
+        <div className="flex items-center gap-1 bg-civic-ivory border border-civic-neutral rounded-xl px-2 py-1 text-xs font-mono">
+          <Globe className="w-3.5 h-3.5 text-civic-leaf" />
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+            aria-label="Select interface language"
+            className="bg-transparent border-none text-civic-forest font-bold text-xs focus:outline-none cursor-pointer"
+          >
+            <option value="en">EN — English</option>
+            <option value="hi">हि — हिन्दी</option>
+            <option value="mr">मर — मराठी</option>
+          </select>
+        </div>
+
         {isFloodActive ? (
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-civic-terracotta/10 border border-civic-terracotta text-civic-terracotta text-xs font-mono font-bold">
             <ShieldAlert className="w-4 h-4" />
-            <span>ACTIVE DISASTER: {activeEventName || 'DISRUPTION DETECTED'}</span>
+            <span>{t('states.activeFlood', 'ACTIVE DISASTER')}: {activeEventName || 'DISRUPTION DETECTED'}</span>
           </div>
         ) : (
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-civic-forest/10 border border-civic-forest/30 text-civic-forest text-xs font-mono font-semibold">
             <CheckCircle2 className="w-4 h-4 text-civic-leaf" />
-            <span>NORMAL CONDITIONS</span>
+            <span>{t('states.normal', 'NORMAL CONDITIONS')}</span>
           </div>
         )}
 
@@ -65,7 +82,7 @@ export default function TopHeader({ disasterStatus, activeEventName }: TopHeader
             </div>
             <button
               onClick={logout}
-              title="Sign Out"
+              title={t('actions.signOut', 'Sign Out')}
               className="p-1.5 rounded-lg text-civic-charcoal/60 hover:text-civic-red hover:bg-civic-red/10 transition cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
@@ -77,7 +94,7 @@ export default function TopHeader({ disasterStatus, activeEventName }: TopHeader
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-civic-forest hover:bg-civic-leaf text-white font-mono text-xs font-bold transition shadow-xs"
           >
             <UserIcon className="w-3.5 h-3.5" />
-            <span>Sign In</span>
+            <span>{t('actions.signIn', 'Sign In')}</span>
           </Link>
         )}
       </div>

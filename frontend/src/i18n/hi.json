@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "overview": "अवलोकन",
+    "foodMap": "खाद्य मानचित्र",
+    "markets": "थोक बाजार",
+    "riskAnalysis": "जोखिम विश्लेषण",
+    "recovery": "पुनर्प्राप्ति प्राथमिकताएं",
+    "aiAnalyst": "एआई विश्लेषक",
+    "cityAction": "शहर कार्रवाई",
+    "title": "AgriGuard नागरिक संचालन",
+    "tagline": "जानें आपके शहर का पोषण क्या करता है। जानें विफल होने पर क्या होता है।",
+    "commandCenter": "कमांड सेंटर"
+  },
+  "actions": {
+    "view": "देखें",
+    "analyze": "विश्लेषण करें",
+    "simulate": "अनुकरण करें",
+    "reset": "रीसेट करें",
+    "explore": "अन्वेषण करें",
+    "priority": "प्राथमिकता",
+    "details": "विवरण",
+    "back": "पीछे",
+    "close": "बंद करें",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट"
+  },
+  "states": {
+    "normal": "सामान्य स्थिति",
+    "warning": "चेतावनी",
+    "critical": "गंभीर जोखिम",
+    "activeFlood": "सक्रिय आपदा",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि"
+  },
+  "risk": {
+    "foodSupplyRisk": "खाद्य आपूर्ति जोखिम",
+    "affectedParcels": "प्रभावित पार्सल",
+    "productionLoss": "उत्पादन हानि",
+    "marketExposure": "बाजार जोखिम",
+    "recoveryPriority": "पुनर्प्राप्ति प्राथमिकता"
+  },
+  "ai": {
+    "askAgriGuard": "AgriGuard विश्लेषक से पूछें",
+    "subtitle": "एआई-सहायता प्राप्त शहरी लचीलापन तर्क परत",
+    "analysis": "विश्लेषण",
+    "keyEvidence": "प्रमुख साक्ष्य",
+    "recommendedAction": "अनुशंसित कार्रवाई",
+    "executiveOverview": "कार्यकारी अवलोकन",
+    "analyticalReasoning": "विश्लेषणात्मक तर्क",
+    "disclaimer": "पद्धति अस्वीकरण",
+    "reasoning": "तर्क प्रस्तुत किया जा रहा है...",
+    "placeholder": "खाद्य जोखिम, बाजार प्रभाव, या पुनर्प्राप्ति कार्यों के बारे में पूछें...",
+    "suggested": {
+      "cityPrioritize": "शहर को अभी किसको प्राथमिकता देनी चाहिए?",
+      "whyCritical": "खाद्य आपूर्ति जोखिम उच्च क्यों है?",
+      "exposedMarkets": "कौन सा थोक बाजार सबसे अधिक प्रभावित है?",
+      "recoverFirst": "हमें किस कृषि पार्सल को पहले पुनर्प्राप्त करना चाहिए?",
+      "floodImpact": "वर्तमान बाढ़ परिदृश्य के क्या परिणाम हैं?"
+    }
+  },
+  "cityAction": {
+    "verify": "सत्यापित करें",
+    "protect": "सुरक्षित करें",
+    "prioritize": "प्राथमिकता दें",
+    "recover": "पुनर्प्राप्त करें"
+  }
+}
