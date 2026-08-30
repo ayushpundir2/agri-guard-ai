@@ -89,12 +89,18 @@ export default function CommandCenterPage() {
 
   const handleAnalyzeFoodRisk = async () => {
     setAnalyzingRisk(true);
-    const riskOv = await analyzeFoodRisk();
-    setRiskOverview(riskOv);
-
-    const updatedGeoJson = await fetchMapOverview();
-    setMapGeoJson(updatedGeoJson);
-    setAnalyzingRisk(false);
+    try {
+      const riskOv = await analyzeFoodRisk();
+      if (riskOv) {
+        setRiskOverview(riskOv);
+      }
+      const updatedGeoJson = await fetchMapOverview();
+      setMapGeoJson(updatedGeoJson);
+    } catch (err) {
+      console.error('Error analyzing food risk:', err);
+    } finally {
+      setAnalyzingRisk(false);
+    }
   };
 
   const handleSelectParcel = async (parcelId: string) => {

@@ -21,6 +21,7 @@ export default function RiskAnalysisPage() {
   const [marketRisks, setMarketRisks] = useState<MarketRisk[]>([]);
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
   const [analyzing, setAnalyzing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -38,11 +39,21 @@ export default function RiskAnalysisPage() {
 
   const handleAnalyzeFoodRisk = async () => {
     setAnalyzing(true);
-    const riskOv = await analyzeFoodRisk();
-    setRiskOverview(riskOv);
-    const mRisks = await fetchMarketRisks();
-    setMarketRisks(mRisks);
-    setAnalyzing(false);
+    setError(null);
+    try {
+      const riskOv = await analyzeFoodRisk();
+      if (!riskOv) {
+        setError('Unable to analyze food-supply risk. Please try again.');
+      } else {
+        setRiskOverview(riskOv);
+        const mRisks = await fetchMarketRisks();
+        setMarketRisks(mRisks);
+      }
+    } catch (err) {
+      setError('Unable to analyze food-supply risk. Please try again.');
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -56,6 +67,18 @@ export default function RiskAnalysisPage() {
           Evaluating multi-factor risk scores combining affected production loss, crop vulnerability, and wholesale market exposure.
         </p>
       </div>
+
+      {error && (
+        <div className="p-4 bg-civic-red/10 border border-civic-red/30 rounded-xl text-xs text-civic-red flex items-center justify-between font-sans">
+          <span>{error}</span>
+          <button
+            onClick={handleAnalyzeFoodRisk}
+            className="px-3 py-1 bg-civic-red text-white font-bold rounded-lg text-xs hover:bg-red-700 transition cursor-pointer font-mono"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <CityRiskMetricsBar
         riskOverview={riskOverview}
