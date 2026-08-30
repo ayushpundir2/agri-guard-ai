@@ -17,6 +17,7 @@ AgriGuard-AI is designed to model the cascade from agricultural land risks to ur
 - **Backend:** Python, FastAPI, Pydantic v2, Uvicorn
 - **Database:** PostgreSQL + PostGIS extension (runs via Docker Compose locally or Render PostgreSQL in production)
 - **AI Integration:** Google Gemini API via server-side Backend service
+- **AI Tooling:** LatentCode CLI integrated with the **`frontend-design-review`** skill for high-quality, distinctive frontend component design and rigorous UI evaluation.
 
 ---
 
@@ -103,6 +104,14 @@ AgriGuard-AI is configured for multi-service deployment on Render using the incl
 1. **Database:** PostgreSQL instance with PostGIS (`agriguard-db`)
 2. **Backend Web Service:** FastAPI Service (`agriguard-ai-python-api`)
 3. **Frontend Web Service:** Next.js Service (`agriguard-ai-frontend`)
+
+---
+
+## AI Developer Skills Used
+
+We utilized the **LatentCode** AI engineering CLI to rapidly prototype and test our application. Specifically, we incorporated the following custom skill into our workflow:
+
+- **`frontend-design-review`**: An advanced LatentCode skill that enforces design system compliance, evaluates the UI across three quality pillars (Frictionless Insight to Action, Quality Craft, and Trustworthy Building), and ensures the UI feels distinct, accessible, and free of generic "AI slop". This guided the implementation of our Next.js UI components.
 
 ---
 
