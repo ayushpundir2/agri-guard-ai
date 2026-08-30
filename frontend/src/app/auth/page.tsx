@@ -18,7 +18,10 @@ function AuthForm() {
   const { login, signup, loginWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('redirect') || '/command-center';
+  const rawRedirect = searchParams.get('redirect');
+  const redirectPath = (rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') && !rawRedirect.startsWith('/\\'))
+    ? rawRedirect
+    : '/command-center';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

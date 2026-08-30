@@ -9,7 +9,6 @@ import {
   loginEmail,
   signupEmail,
   googleAuth,
-  AuthTokenResponse
 } from '@/lib/api';
 
 interface AuthContextType {
@@ -30,7 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
 });
 
-const PROTECTED_ROUTES = [
+export const PROTECTED_ROUTES = [
   '/command-center',
   '/food-map',
   '/markets',
@@ -39,6 +38,27 @@ const PROTECTED_ROUTES = [
   '/ai-analyst',
   '/city-action'
 ];
+
+/**
+ * Safely validates redirect target string to ensure it is an internal relative path.
+ * Prevents open redirect security vulnerabilities (e.g., //evil.com or https://evil.com).
+ */
+export function sanitizeRedirectUrl(target: string | null): string | null {
+  if (!target) return null;
+  const decoded = decodeURIComponent(target).trim();
+  // Must start with '/' and NOT with '//' or '\' or contain scheme protocol (e.g. 'http:')
+  if (decoded.startsWith('/') && !decoded.startsWith('//') && !decoded.startsWith('/\\')) {
+    try {
+      const parsed = new URL(decoded, 'http://localhost');
+      if (parsed.origin === 'http://localhost') {
+        return parsed.pathname + parsed.search + parsed.hash;
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -49,20 +69,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       setLoading(true);
-      const profile = await fetchAuthUser();
-      setUser(profile);
-      setLoading(false);
+      try {
+        const profile = await fetchAuthUser();
+        setUser(profile);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     }
     loadUser();
   }, []);
 
-  // Protected route redirect check
+  // Protected and Auth route redirects
   useEffect(() => {
-    if (!loading) {
-      const isProtected = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
-      if (isProtected && !user) {
-        router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
-      }
+    if (loading) return;
+
+    const isProtected = PROTECTED_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`));
+    const isAuthPage = pathname === '/auth';
+
+    if (isProtected && !user) {
+      const currentUrl = pathname;
+      const safeTarget = sanitizeRedirectUrl(currentUrl) || '/command-center';
+      router.replace(`/auth?redirect=${encodeURIComponent(safeTarget)}`);
+    } else if (isAuthPage && user) {
+      // If user is already authenticated and visits /auth
+      const params = new URLSearchParams(window.location.search);
+      const redirectParam = params.get('redirect');
+      const safeDestination = sanitizeRedirectUrl(redirectParam) || '/command-center';
+      router.replace(safeDestination);
     }
   }, [user, loading, pathname, router]);
 
