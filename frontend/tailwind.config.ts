@@ -16,13 +16,18 @@ const config: Config = {
           sage: "#8FAF8B",
           saffron: "#D99A2B",
           terracotta: "#D65A3A",
+          terra: "#D65A3A",
           red: "#B42318",
           teal: "#168A8A",
           charcoal: "#26332B",
           neutral: "#EAE7DC",
-          card: "#FFFFFF"
+          card: "#FFFFFF",
+          white: "#FFFFFF"
         }
       },
+      boxShadow: {
+        civic: "0 4px 20px -2px rgba(38, 51, 43, 0.08), 0 2px 6px -1px rgba(38, 51, 43, 0.04)"
+      }
     },
   },
   plugins: [],

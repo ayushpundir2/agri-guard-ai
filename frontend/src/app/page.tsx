@@ -1,315 +1,366 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, Waves, Cpu, Sparkles, AlertTriangle } from 'lucide-react';
+import {
+  ArrowRight,
+  Sprout,
+  Store,
+  Building2,
+  MapPin,
+  Activity,
+  BarChart3,
+  ListOrdered,
+  AlertTriangle,
+  ShieldCheck,
+  Waves
+} from 'lucide-react';
 
 export default function LandingPage() {
-  const scrollToSection = (id: string) => {
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-civic-ivory text-civic-charcoal font-sans selection:bg-civic-forest selection:text-white">
-      {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-civic-card/90 backdrop-blur border-b border-civic-neutral px-6 py-4 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-3">
-          <span className="text-xl">🌾</span>
-          <span className="text-sm font-bold tracking-tight font-mono text-civic-forest">AgriGuard-AI</span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-8 text-xs font-medium text-civic-charcoal/80">
-          <button onClick={() => scrollToSection('network')} className="hover:text-civic-forest transition cursor-pointer">
-            How It Works
-          </button>
-          <button onClick={() => scrollToSection('problem')} className="hover:text-civic-forest transition cursor-pointer">
-            The Problem
-          </button>
-          <button onClick={() => scrollToSection('solution')} className="hover:text-civic-forest transition cursor-pointer">
-            The System
-          </button>
-          <button onClick={() => scrollToSection('priorities')} className="hover:text-civic-forest transition cursor-pointer">
-            Recovery Priorities
-          </button>
-        </div>
-
-        <Link
-          href="/command-center"
-          className="flex items-center gap-2 px-4 py-2 bg-civic-forest hover:bg-civic-leaf text-white font-bold text-xs rounded-xl transition font-mono shadow-sm"
-        >
-          <span>COMMAND CENTER</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </nav>
-
-      {/* 1. Cinematic Hero Section */}
-      <section className="relative min-h-screen flex flex-col justify-between pt-32 pb-16 px-6 max-w-6xl mx-auto">
-        <div className="my-auto space-y-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-civic-forest/10 border border-civic-forest/30 text-xs font-mono text-civic-forest font-semibold">
-            <span className="w-2 h-2 rounded-full bg-civic-leaf animate-pulse" />
-            <span>CITY FOOD RESILIENCE INTELLIGENCE</span>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] text-civic-forest font-sans">
-            CITIES DEPEND ON FARMS <br />
-            <span className="text-civic-charcoal/60">THEY RARELY SEE.</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-civic-charcoal/80 max-w-2xl font-light leading-relaxed">
-            When disaster strikes agricultural land, the impact doesn't stop at the farm. It moves through markets and reaches the city.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4">
-            <Link
-              href="/command-center"
-              className="flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-bold rounded-xl transition text-sm font-mono shadow-lg"
-            >
-              <span>EXPLORE AGRIGUARD</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <button
-              onClick={() => scrollToSection('network')}
-              className="flex items-center gap-2 px-6 py-4 text-civic-charcoal/70 hover:text-civic-forest text-xs font-mono transition cursor-pointer"
-            >
-              <span>SEE HOW IT WORKS</span>
-              <ChevronDown className="w-4 h-4 animate-bounce" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-t border-civic-neutral pt-8 text-xs font-mono text-civic-charcoal/60">
-          <p>PROTOTYPE REGION: PUNE, MAHARASHTRA, INDIA</p>
-          <p>FUND MY CRAZY — &ldquo;SURPRISE US!&rdquo; ENTRY</p>
-        </div>
-      </section>
-
-      {/* 2. Visual Transition Section */}
-      <section id="network" className="py-32 px-6 bg-civic-card border-t border-civic-neutral">
-        <div className="max-w-5xl mx-auto space-y-16">
-          <div className="text-center space-y-4">
-            <span className="text-xs uppercase font-mono tracking-widest text-civic-leaf font-bold">
-              The Invisible Network
-            </span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-civic-forest">
-              YOU SEE THE CITY. <br />
-              <span className="text-civic-charcoal/60">WE MAP WHAT FEEDS IT.</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 font-mono text-xs">
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-2xl">🌾</span>
-              <h3 className="text-sm font-bold text-civic-forest uppercase">1. Agricultural Land</h3>
-              <p className="text-civic-charcoal/80 leading-relaxed font-sans">
-                Peri-urban cultivation parcels around Pune growing essential produce.
-              </p>
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-50 bg-civic-ivory/90 backdrop-blur-md border-b border-civic-neutral px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-civic-forest flex items-center justify-center text-white font-bold text-lg shadow-xs">
+              🌾
             </div>
-
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-2xl">📦</span>
-              <h3 className="text-sm font-bold text-civic-forest uppercase">2. Crop Yields</h3>
-              <p className="text-civic-charcoal/80 leading-relaxed font-sans">
-                Perishable and grain crops (Tomatoes, Onions, Sugarcane, Wheat).
-              </p>
-            </div>
-
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-2xl">🏪</span>
-              <h3 className="text-sm font-bold text-civic-forest uppercase">3. Wholesale Markets</h3>
-              <p className="text-civic-charcoal/80 leading-relaxed font-sans">
-                Gultekdi APMC and regional collection yards distributing urban food.
-              </p>
-            </div>
-
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-2xl">🏙️</span>
-              <h3 className="text-sm font-bold text-civic-forest uppercase">4. City Supply</h3>
-              <p className="text-civic-charcoal/80 leading-relaxed font-sans">
-                Daily urban food availability and resilience for city residents.
-              </p>
+            <div>
+              <span className="text-base font-extrabold tracking-tight text-civic-forest block leading-none">
+                AgriGuard-AI
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-civic-leaf">
+                Food Resilience Intelligence
+              </span>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* 3. The Moment Everything Changes (Disaster Inundation) */}
-      <section id="problem" className="py-32 px-6 bg-civic-terracotta/5 border-t border-civic-neutral">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-civic-terracotta/10 border border-civic-terracotta text-civic-terracotta font-mono text-xs font-bold">
-            <Waves className="w-3.5 h-3.5" />
-            <span>DISRUPTION DETECTED</span>
-          </div>
-
-          <h2 className="text-5xl md:text-7xl font-black tracking-tight text-civic-forest leading-tight">
-            THEN THE WATER RISES.
-          </h2>
-
-          <p className="text-lg md:text-xl text-civic-charcoal/80 max-w-2xl mx-auto font-light leading-relaxed">
-            A flood isn't just a farmer's problem. One flooded agricultural cluster can become a supply problem for markets — and eventually a food-security risk for the city.
-          </p>
-
-          <div className="p-8 bg-civic-card border border-civic-terracotta/30 rounded-2xl font-mono text-xs space-y-4 max-w-xl mx-auto text-left shadow-sm">
-            <div className="flex items-center justify-between text-civic-terracotta font-bold uppercase border-b border-civic-neutral pb-2">
-              <span>Cascading Impact Chain</span>
-              <AlertTriangle className="w-4 h-4 text-civic-saffron" />
-            </div>
-            <div className="space-y-2 text-civic-charcoal">
-              <p className="flex items-center gap-2">
-                <span className="text-civic-teal font-bold">1.</span> Flooded Farmland Inundation
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="text-civic-saffron font-bold">2.</span> Lost Agricultural Crop Yields
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="text-civic-terracotta font-bold">3.</span> Wholesale Market Supply Deficits
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="text-civic-red font-bold">4.</span> Urban Food Supply Risk & Price Volatility
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Introduce AgriGuard Solution */}
-      <section id="solution" className="py-32 px-6 bg-civic-card border-t border-civic-neutral">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <span className="text-xs uppercase font-mono tracking-widest text-civic-leaf font-bold">
-              The Intelligence Layer
-            </span>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-civic-forest">
-              AGRIGUARD CONNECTS THE DOTS.
-            </h2>
-            <p className="text-base text-civic-charcoal/80 max-w-2xl mx-auto font-light leading-relaxed">
-              AgriGuard turns fragmented agricultural and disaster signals into a city-level picture of food resilience.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-xs uppercase text-civic-leaf font-bold">01. GEOSPATIAL ANALYSIS</span>
-              <h3 className="text-sm font-bold text-civic-forest">PostGIS Flood Intersection</h3>
-              <p className="text-civic-charcoal/80 font-sans leading-relaxed">
-                Calculates exact parcel overlap percentages and affected cultivated acreage.
-              </p>
-            </div>
-
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-xs uppercase text-civic-saffron font-bold">02. MARKET EXPOSURE</span>
-              <h3 className="text-sm font-bold text-civic-forest">Wholesale Supply Vulnerability</h3>
-              <p className="text-civic-charcoal/80 font-sans leading-relaxed">
-                Models parcel-to-market dependency decay and supply deficit ratios.
-              </p>
-            </div>
-
-            <div className="p-6 bg-civic-ivory/80 rounded-2xl border border-civic-neutral space-y-3">
-              <span className="text-xs uppercase text-civic-terracotta font-bold">03. RECOVERY PRIORITY</span>
-              <h3 className="text-sm font-bold text-civic-forest">Resource Allocation Ranking</h3>
-              <p className="text-civic-charcoal/80 font-sans leading-relaxed">
-                Ranks agricultural interventions by evidence, vulnerability, and city impact.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Recovery Priorities Story */}
-      <section id="priorities" className="py-32 px-6 bg-civic-ivory border-t border-civic-neutral">
-        <div className="max-w-4xl mx-auto space-y-8 text-center">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-civic-forest">
-            WHEN EVERYTHING IS A PRIORITY, <br />
-            <span className="text-civic-charcoal/60">NOTHING IS.</span>
-          </h2>
-
-          <p className="text-base text-civic-charcoal/80 max-w-2xl mx-auto font-light leading-relaxed">
-            AgriGuard ranks affected agricultural areas by flood exposure, cultivation evidence, crop vulnerability, market importance, and production impact.
-          </p>
-
-          <div className="p-6 bg-civic-card border border-civic-neutral rounded-2xl font-mono text-xs max-w-xl mx-auto text-left space-y-3 shadow-sm">
-            <span className="text-[10px] text-civic-leaf uppercase font-bold block">
-              AI-ASSISTED CULTIVATION EVIDENCE
-            </span>
-            <p className="text-civic-charcoal font-sans leading-relaxed">
-              Land records tell you who owns land. The food system needs to know who is cultivating it.
-            </p>
-            <div className="p-3 bg-civic-saffron/10 border border-civic-saffron/30 rounded-xl text-[11px] text-civic-charcoal">
-              <strong>Methodology Rule:</strong> AI-assisted cultivation evidence requires administrative verification. Not legal proof of tenancy or land ownership.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Gemini Intelligence Layer */}
-      <section className="py-32 px-6 bg-civic-card border-t border-civic-neutral">
-        <div className="max-w-4xl mx-auto space-y-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-civic-forest/10 border border-civic-forest/30 text-civic-forest font-mono text-xs font-semibold">
-            <Cpu className="w-3.5 h-3.5" />
-            <span>GEMINI REASONING LAYER</span>
-          </div>
-
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-civic-forest">
-            AND THEN, ASK THE SYSTEM WHY.
-          </h2>
-
-          <p className="text-base text-civic-charcoal/80 max-w-2xl mx-auto font-light leading-relaxed">
-            Gemini translates AgriGuard's calculated risk and recovery intelligence into clear decision-support recommendations for urban emergency planners.
-          </p>
-
-          <div className="p-6 bg-civic-ivory border border-civic-neutral rounded-2xl text-left max-w-xl mx-auto font-mono text-xs space-y-3">
-            <div className="flex items-center gap-2 text-civic-forest font-bold border-b border-civic-neutral pb-2">
-              <Sparkles className="w-4 h-4 text-civic-leaf" />
-              <span>Prompt: "What should the city prioritize first?"</span>
-            </div>
-            <p className="text-civic-charcoal font-sans leading-relaxed">
-              "Prioritize emergency drainage in Chakan tomato cluster (Parcel PNE-014). This cluster supplies 28% of Gultekdi APMC's perishable vegetables and faces 85% flood inundation."
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Big Idea Section */}
-      <section className="py-40 px-6 bg-civic-forest text-white border-t border-civic-neutral text-center">
-        <div className="max-w-5xl mx-auto space-y-6">
-          <h2 className="text-4xl md:text-7xl font-black tracking-tight leading-tight">
-            PROTECTING A CITY'S FOOD SUPPLY <br />
-            <span className="text-civic-sage">STARTS OUTSIDE THE CITY.</span>
-          </h2>
-        </div>
-      </section>
-
-      {/* 8. CTA & Command Center Entry */}
-      <section className="py-24 px-6 bg-civic-ivory border-t border-civic-neutral text-center">
-        <div className="max-w-3xl mx-auto space-y-8">
-          <h2 className="text-3xl md:text-5xl font-black tracking-tight text-civic-forest">
-            SEE THE CITY THROUGH ITS FOOD SYSTEM.
-          </h2>
-
-          <p className="text-civic-charcoal/70 font-light text-base max-w-xl mx-auto leading-relaxed">
-            Explore how AgriGuard detects disruption, measures food-supply risk and prioritizes recovery.
-          </p>
 
           <Link
             href="/command-center"
-            className="inline-flex items-center gap-3 px-10 py-5 bg-civic-forest hover:bg-civic-leaf text-white font-bold rounded-2xl transition text-base font-mono shadow-xl"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-civic-forest hover:bg-civic-leaf text-white font-medium text-sm rounded-xl transition duration-150 shadow-sm"
           >
-            <span>ENTER COMMAND CENTER</span>
-            <ArrowRight className="w-5 h-5" />
+            <span>Command Center</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 md:py-32 px-6 border-b border-civic-neutral">
+        {/* Subtle agricultural background layer */}
+        <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#14532D_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-civic-forest/10 border border-civic-forest/20 text-civic-forest text-xs font-semibold uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-civic-leaf animate-pulse" />
+            <span>Civic Food Security System</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-civic-forest leading-[1.08]">
+            CITIES DEPEND ON FARMS <br className="hidden sm:inline" />
+            <span className="text-civic-charcoal">THEY RARELY SEE.</span>
+          </h1>
+
+          <p className="text-lg sm:text-xl text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed">
+            Connecting peri-urban agricultural production with wholesale market flow to safeguard urban food security when climate disasters strike.
+          </p>
+
+          <div className="pt-4 flex justify-center">
+            <Link
+              href="/command-center"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <span>EXPLORE AGRIGUARD</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Hidden Supply Chain Section */}
+      <section className="py-20 px-6 max-w-7xl mx-auto space-y-12">
+        <div className="text-center space-y-3">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-civic-leaf">
+            The Invisible Network
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest">
+            THE HIDDEN SUPPLY CHAIN
+          </h2>
+          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto">
+            How produce moves silently from regional soil to the urban plate.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative items-center">
+          {/* Card 1 */}
+          <div className="bg-civic-white p-8 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col items-center text-center relative group hover:border-civic-leaf/40 transition">
+            <div className="w-14 h-14 rounded-full bg-civic-ivory flex items-center justify-center text-civic-leaf border border-civic-neutral">
+              <Sprout className="w-7 h-7" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-civic-forest">Farm Production</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+                Peri-urban agricultural parcels cultivate essential perishable and grain crops powering regional food supply.
+              </p>
+            </div>
+          </div>
+
+          {/* Flow Indicator 1 (Desktop) */}
+          <div className="hidden md:flex absolute left-[31.5%] top-1/2 -translate-y-1/2 z-10 text-civic-leaf">
+            <div className="w-8 h-8 rounded-full bg-civic-ivory border border-civic-neutral flex items-center justify-center shadow-xs">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-civic-white p-8 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col items-center text-center relative group hover:border-civic-leaf/40 transition">
+            <div className="w-14 h-14 rounded-full bg-civic-ivory flex items-center justify-center text-civic-leaf border border-civic-neutral">
+              <Store className="w-7 h-7" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-civic-forest">Wholesale Markets</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+                Central wholesale yards (APMCs) aggregate daily yields, determining market price stability and distribution.
+              </p>
+            </div>
+          </div>
+
+          {/* Flow Indicator 2 (Desktop) */}
+          <div className="hidden md:flex absolute left-[65%] top-1/2 -translate-y-1/2 z-10 text-civic-leaf">
+            <div className="w-8 h-8 rounded-full bg-civic-ivory border border-civic-neutral flex items-center justify-center shadow-xs">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="bg-civic-white p-8 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col items-center text-center relative group hover:border-civic-leaf/40 transition">
+            <div className="w-14 h-14 rounded-full bg-civic-ivory flex items-center justify-center text-civic-leaf border border-civic-neutral">
+              <Building2 className="w-7 h-7" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-civic-forest">Secure City Food Supply</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+                Urban households receive uninterrupted food availability and price protection against systemic shocks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Disaster State Section */}
+      <section className="bg-civic-terra text-white py-20 md:py-28 px-6 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto space-y-12 relative z-10">
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-mono uppercase tracking-wider">
+              <Waves className="w-4 h-4" />
+              <span>Climate Vulnerability Alert</span>
+            </div>
+            <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+              THEN THE WATER RISES.
+            </h2>
+            <p className="text-base sm:text-lg text-white/90 leading-relaxed">
+              When extreme flooding submerges agricultural zones, the supply link breaks long before food shortages manifest on urban shelves.
+            </p>
+          </div>
+
+          {/* Stylized Disaster Map & Indicators */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/20 pb-4 gap-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-6 h-6 text-amber-300" />
+                <span className="font-mono text-sm font-bold tracking-wider uppercase">
+                  Flood Impact Mapping • Active Disruption Zone
+                </span>
+              </div>
+              <span className="px-3 py-1 bg-red-900/60 border border-red-400/40 text-red-200 text-xs font-mono rounded-md">
+                SEVERITY: CRITICAL (HIGH INUNDATION)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+              {/* Stylized Map View Box */}
+              <div className="lg:col-span-2 bg-neutral-900/40 rounded-xl p-6 border border-white/15 h-64 sm:h-72 relative flex flex-col justify-between overflow-hidden">
+                {/* Visual grid / map overlay representation */}
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
+                <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
+                <div className="absolute bottom-1/4 right-1/3 w-40 h-24 bg-red-500/20 rounded-full blur-lg" />
+
+                <div className="relative z-10 flex justify-between items-start font-mono text-xs">
+                  <span className="bg-black/50 px-2.5 py-1 rounded border border-white/10 text-white/80">
+                    PUNE REGION • PARCEL OVERLAY
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-300 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                    85% INUNDATED
+                  </span>
+                </div>
+
+                <div className="relative z-10 grid grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="bg-black/60 p-3 rounded-lg border border-white/10">
+                    <div className="text-white/60 text-[10px]">AFFECTED CLUSTER</div>
+                    <div className="font-bold text-white text-sm">Chakan Tomato Belt</div>
+                  </div>
+                  <div className="bg-black/60 p-3 rounded-lg border border-white/10">
+                    <div className="text-white/60 text-[10px]">WHOLESALE IMPACT</div>
+                    <div className="font-bold text-red-300 text-sm">Gultekdi APMC (-28%)</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Warning Indicator Cards */}
+              <div className="space-y-4 font-mono text-xs">
+                <div className="bg-black/30 p-4 rounded-xl border border-white/15 space-y-1">
+                  <div className="text-amber-300 font-bold flex items-center justify-between">
+                    <span>1. CROP INUNDATION</span>
+                    <span>HIGH</span>
+                  </div>
+                  <p className="text-white/80 text-[11px] font-sans">
+                    Critical agricultural parcels experience prolonged waterlogging during peak harvest.
+                  </p>
+                </div>
+
+                <div className="bg-black/30 p-4 rounded-xl border border-white/15 space-y-1">
+                  <div className="text-amber-300 font-bold flex items-center justify-between">
+                    <span>2. SUPPLY DEFICIT</span>
+                    <span>IMMINENT</span>
+                  </div>
+                  <p className="text-white/80 text-[11px] font-sans">
+                    Wholesale arriving volume drops, causing regional price spikes for key perishables.
+                  </p>
+                </div>
+
+                <div className="bg-black/30 p-4 rounded-xl border border-white/15 space-y-1">
+                  <div className="text-amber-300 font-bold flex items-center justify-between">
+                    <span>3. URBAN VULNERABILITY</span>
+                    <span>ELEVATED</span>
+                  </div>
+                  <p className="text-white/80 text-[11px] font-sans">
+                    Urban centers face food availability risks without early intervention and targeted recovery.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Product Features Section */}
+      <section className="py-20 px-6 max-w-7xl mx-auto space-y-12">
+        <div className="text-center space-y-3">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-civic-leaf">
+            System Capabilities
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest">
+            INTRODUCING AGRIGUARD
+          </h2>
+          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto">
+            An end-to-end intelligence platform for monitoring, simulating, and mitigating food supply risks.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Feature 1 */}
+          <div className="bg-civic-white p-6 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col justify-between group hover:border-civic-leaf/40 transition">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-civic-forest">Map & Trace</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+                Interactively map agricultural parcels, crop types, and physical supply lines connecting peri-urban farms to municipal wholesale markets.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-civic-neutral text-[11px] font-mono text-civic-leaf font-semibold">
+              01 / GEOSPATIAL INTELLIGENCE
+            </div>
+          </div>
+
+          {/* Feature 2 */}
+          <div className="bg-civic-white p-6 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col justify-between group hover:border-civic-leaf/40 transition">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
+                <Activity className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-civic-forest">Simulate Impact</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+                Run flood scenario models to quantify exact parcel inundation levels, crop damage estimates, and yield loss projections.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-civic-neutral text-[11px] font-mono text-civic-leaf font-semibold">
+              02 / DISASTER SIMULATION
+            </div>
+          </div>
+
+          {/* Feature 3 */}
+          <div className="bg-civic-white p-6 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col justify-between group hover:border-civic-leaf/40 transition">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
+                <BarChart3 className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-civic-forest">Quantify Risk</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+                Evaluate market exposure scores and city risk indices to measure potential urban food supply deficits in real time.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-civic-neutral text-[11px] font-mono text-civic-leaf font-semibold">
+              03 / SUPPLY RISK ANALYSIS
+            </div>
+          </div>
+
+          {/* Feature 4 */}
+          <div className="bg-civic-white p-6 rounded-2xl border border-civic-neutral shadow-civic space-y-4 flex flex-col justify-between group hover:border-civic-leaf/40 transition">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
+                <ListOrdered className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-civic-forest">Rank Recovery</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+                Prioritize emergency relief and agricultural recovery resources based on cultivation evidence, vulnerability, and city impact.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-civic-neutral text-[11px] font-mono text-civic-leaf font-semibold">
+              04 / ACTIONABLE PRIORITIZATION
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final Call To Action Section */}
+      <section className="py-24 px-6 bg-civic-ivory border-t border-civic-neutral text-center">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="w-12 h-12 rounded-full bg-civic-forest/10 border border-civic-forest/20 text-civic-forest flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-civic-forest leading-tight">
+            PROTECTING A CITY'S FOOD SUPPLY STARTS OUTSIDE THE CITY.
+          </h2>
+
+          <p className="text-base sm:text-lg text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed">
+            Access the AgriGuard-AI Command Center to analyze regional food security and make data-driven emergency management decisions.
+          </p>
+
+          <div className="pt-2">
+            <Link
+              href="/command-center"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <span>EXPLORE AGRIGUARD</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-civic-neutral text-xs font-mono text-civic-charcoal/60 flex flex-col md:flex-row justify-between items-center gap-4 max-w-6xl mx-auto">
-        <div>
-          <span className="text-civic-forest font-bold">AgriGuard-AI</span> • Pune Prototype
+      <footer className="py-8 px-6 border-t border-civic-neutral text-xs font-mono text-civic-charcoal/60 bg-civic-white">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-civic-forest">AgriGuard-AI</span>
+            <span>• Civic Food System Intelligence</span>
+          </div>
+          <div>Pune Prototype Region</div>
         </div>
-        <p className="text-civic-saffron">
-          Illustrative prototype methodology demonstration — AI-assisted evidence requires administrative verification.
-        </p>
       </footer>
     </div>
   );
