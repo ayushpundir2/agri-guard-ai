@@ -1,12 +1,15 @@
+'use client';
+
 import React from 'react';
 import { FoodRiskOverview } from '@/lib/api';
 import RiskGauge from '@/components/RiskGauge';
-import { Cpu, ShieldAlert } from 'lucide-react';
+import { Cpu, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
 
 interface CityRiskMetricsBarProps {
   riskOverview: FoodRiskOverview | null;
   onAnalyze: () => void;
   analyzing: boolean;
+  lastAnalyzedAt?: string | null;
   hasActiveFlood: boolean;
 }
 
@@ -14,20 +17,41 @@ export default function CityRiskMetricsBar({
   riskOverview,
   onAnalyze,
   analyzing,
+  lastAnalyzedAt,
   hasActiveFlood
 }: CityRiskMetricsBarProps) {
   if (!hasActiveFlood) return null;
 
   const isAnalyzed = riskOverview && riskOverview.status === 'ANALYSIS_ACTIVE';
 
+  const formatTimestamp = (isoStr?: string | null) => {
+    if (!isoStr) return null;
+    try {
+      const date = new Date(isoStr);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    } catch {
+      return null;
+    }
+  };
+
+  const formattedTime = formatTimestamp(lastAnalyzedAt || riskOverview?.calculated_at);
+
   return (
     <div className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-sm flex flex-col gap-5">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-civic-neutral pb-4">
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-civic-forest flex items-center gap-2 font-mono">
-            <ShieldAlert className="w-4.5 h-4.5 text-civic-terracotta" />
-            CITY FOOD-SUPPLY RISK ASSESSMENT
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-civic-forest flex items-center gap-2 font-mono">
+              <ShieldAlert className="w-4.5 h-4.5 text-civic-terracotta" />
+              CITY FOOD-SUPPLY RISK ASSESSMENT
+            </h2>
+            {isAnalyzed && formattedTime && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-civic-leaf/10 border border-civic-leaf/30 text-civic-forest text-[10px] font-mono font-semibold">
+                <CheckCircle2 className="w-3 h-3 text-civic-leaf" />
+                Updated at {formattedTime}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-civic-charcoal/70 mt-1 font-sans">
             Cascading impact analysis from agricultural production loss to urban market availability.
           </p>
@@ -38,8 +62,8 @@ export default function CityRiskMetricsBar({
           disabled={analyzing}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-civic-terracotta hover:bg-civic-red text-white font-bold tracking-wider transition cursor-pointer font-mono text-xs shadow-md disabled:opacity-50"
         >
-          <Cpu className="w-4 h-4" />
-          {analyzing ? 'CALCULATING RISK...' : 'ANALYZE FOOD RISK'}
+          <Cpu className={`w-4 h-4 ${analyzing ? 'animate-spin' : ''}`} />
+          {analyzing ? 'ANALYZING RISK MODEL...' : 'ANALYZE FOOD RISK'}
         </button>
       </div>
 
@@ -63,9 +87,10 @@ export default function CityRiskMetricsBar({
               }`}>
                 {riskOverview.risk_level} RISK LEVEL
               </span>
-              <p className="text-[11px] text-civic-charcoal/70 mt-2 leading-tight">
-                Calculated from production loss, wholesale market exposure, crop vulnerability & flood severity.
-              </p>
+              <div className="flex items-center gap-1 text-[10px] text-civic-charcoal/70 mt-2 font-mono">
+                <Clock className="w-3 h-3 text-civic-leaf" />
+                <span>Model calculated: {formattedTime || 'Just now'}</span>
+              </div>
             </div>
           </div>
 

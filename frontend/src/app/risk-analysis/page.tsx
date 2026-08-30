@@ -21,6 +21,7 @@ export default function RiskAnalysisPage() {
   const [marketRisks, setMarketRisks] = useState<MarketRisk[]>([]);
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
   const [analyzing, setAnalyzing] = useState<boolean>(false);
+  const [lastAnalyzedAt, setLastAnalyzedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +34,9 @@ export default function RiskAnalysisPage() {
       setRiskOverview(riskRes);
       setMarketRisks(mRisks);
       setFloodOverview(floodRes);
+      if (riskRes?.calculated_at) {
+        setLastAnalyzedAt(riskRes.calculated_at);
+      }
     }
     loadData();
   }, []);
@@ -48,6 +52,7 @@ export default function RiskAnalysisPage() {
         setRiskOverview(riskOv);
         const mRisks = await fetchMarketRisks();
         setMarketRisks(mRisks);
+        setLastAnalyzedAt(riskOv.calculated_at || new Date().toISOString());
       }
     } catch (err) {
       setError('Unable to analyze food-supply risk. Please try again.');
@@ -84,6 +89,7 @@ export default function RiskAnalysisPage() {
         riskOverview={riskOverview}
         onAnalyze={handleAnalyzeFoodRisk}
         analyzing={analyzing}
+        lastAnalyzedAt={lastAnalyzedAt}
         hasActiveFlood={floodOverview?.status === 'ACTIVE_FLOOD'}
       />
 

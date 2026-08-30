@@ -36,6 +36,7 @@ export default function CommandCenterPage() {
   const [scenarios, setScenarios] = useState<FloodEvent[]>([]);
   const [floodOverview, setFloodOverview] = useState<FloodOverview | null>(null);
   const [riskOverview, setRiskOverview] = useState<FoodRiskOverview | null>(null);
+  const [lastAnalyzedAt, setLastAnalyzedAt] = useState<string | null>(null);
 
   const [simulating, setSimulating] = useState<boolean>(false);
   const [analyzingRisk, setAnalyzingRisk] = useState<boolean>(false);
@@ -93,6 +94,7 @@ export default function CommandCenterPage() {
       const riskOv = await analyzeFoodRisk();
       if (riskOv) {
         setRiskOverview(riskOv);
+        setLastAnalyzedAt(riskOv.calculated_at || new Date().toISOString());
       }
       const updatedGeoJson = await fetchMapOverview();
       setMapGeoJson(updatedGeoJson);
@@ -141,6 +143,7 @@ export default function CommandCenterPage() {
         riskOverview={riskOverview}
         onAnalyze={handleAnalyzeFoodRisk}
         analyzing={analyzingRisk}
+        lastAnalyzedAt={lastAnalyzedAt}
         hasActiveFlood={floodOverview?.status === 'ACTIVE_FLOOD'}
       />
 
