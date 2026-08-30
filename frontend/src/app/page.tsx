@@ -19,7 +19,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-civic-ivory text-civic-charcoal font-sans selection:bg-civic-forest selection:text-white">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 bg-civic-ivory/90 backdrop-blur-md border-b border-civic-neutral px-6 py-4">
+      <header className="sticky top-0 z-50 bg-civic-ivory/95 backdrop-blur-md border-b border-civic-neutral px-6 py-5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <img
@@ -50,19 +50,19 @@ export default function LandingPage() {
             <span>Civic Food Security System</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-civic-forest leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-civic-forest leading-[1.1] font-google">
             CITIES DEPEND ON FARMS <br className="hidden sm:inline" />
             <span className="text-civic-charcoal">THEY RARELY SEE.</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed">
+          <p className="text-lg sm:text-xl text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed font-google">
             Connecting peri-urban agricultural production with wholesale market flow to safeguard urban food security when climate disasters strike.
           </p>
 
-          <div className="pt-4 flex justify-center">
+          <div className="pt-6 flex justify-center">
             <Link
               href="/command-center"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-md transform hover:-translate-y-0.5"
             >
               <span>EXPLORE AGRIGUARD</span>
               <ArrowRight className="w-5 h-5" />
@@ -77,10 +77,10 @@ export default function LandingPage() {
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-civic-leaf">
             The Invisible Network
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest font-google">
             THE HIDDEN SUPPLY CHAIN
           </h2>
-          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto font-google">
             How produce moves silently from regional soil to the urban plate.
           </p>
         </div>
@@ -92,8 +92,8 @@ export default function LandingPage() {
               <Sprout className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-bold text-civic-forest">Farm Production</h3>
-              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Farm Production</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed font-google">
                 Peri-urban agricultural parcels cultivate essential perishable and grain crops powering regional food supply.
               </p>
             </div>
@@ -112,8 +112,8 @@ export default function LandingPage() {
               <Store className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-bold text-civic-forest">Wholesale Markets</h3>
-              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Wholesale Markets</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed font-google">
                 Central wholesale yards (APMCs) aggregate daily yields, determining market price stability and distribution.
               </p>
             </div>
@@ -132,8 +132,8 @@ export default function LandingPage() {
               <Building2 className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-bold text-civic-forest">Secure City Food Supply</h3>
-              <p className="text-sm text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Secure City Food Supply</h3>
+              <p className="text-sm text-civic-charcoal/80 leading-relaxed font-google">
                 Urban households receive uninterrupted food availability and price protection against systemic shocks.
               </p>
             </div>
@@ -149,10 +149,10 @@ export default function LandingPage() {
               <Waves className="w-4 h-4" />
               <span>Climate Vulnerability Alert</span>
             </div>
-            <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight font-google">
               THEN THE WATER RISES.
             </h2>
-            <p className="text-base sm:text-lg text-white/90 leading-relaxed">
+            <p className="text-base sm:text-lg text-white/90 leading-relaxed font-google">
               When extreme flooding submerges agricultural zones, the supply link breaks long before food shortages manifest on urban shelves.
             </p>
           </div>
@@ -176,8 +176,8 @@ export default function LandingPage() {
               <div className="lg:col-span-2 bg-neutral-900/40 rounded-xl p-6 border border-white/15 h-64 sm:h-72 relative flex flex-col justify-between overflow-hidden">
                 {/* Visual grid / map overlay representation */}
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
-                <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/3 w-40 h-24 bg-red-500/20 rounded-full blur-lg" />
+                <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-xl" />
+                <div className="absolute bottom-1/4 right-1/3 w-40 h-24 bg-red-500/10 rounded-full blur-lg" />
 
                 <div className="relative z-10 flex justify-between items-start font-mono text-xs">
                   <span className="bg-black/50 px-2.5 py-1 rounded border border-white/10 text-white/80">
@@ -244,10 +244,10 @@ export default function LandingPage() {
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-civic-leaf">
             System Capabilities
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-civic-forest font-google">
             INTRODUCING AGRIGUARD
           </h2>
-          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-civic-charcoal/70 max-w-xl mx-auto font-google">
             An end-to-end intelligence platform for monitoring, simulating, and mitigating food supply risks.
           </p>
         </div>
@@ -259,8 +259,8 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
                 <MapPin className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-civic-forest">Map & Trace</h3>
-              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Map & Trace</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed font-google">
                 Interactively map agricultural parcels, crop types, and physical supply lines connecting peri-urban farms to municipal wholesale markets.
               </p>
             </div>
@@ -275,8 +275,8 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-civic-forest">Simulate Impact</h3>
-              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Simulate Impact</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed font-google">
                 Run flood scenario models to quantify exact parcel inundation levels, crop damage estimates, and yield loss projections.
               </p>
             </div>
@@ -291,8 +291,8 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
                 <BarChart3 className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-civic-forest">Quantify Risk</h3>
-              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Quantify Risk</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed font-google">
                 Evaluate market exposure scores and city risk indices to measure potential urban food supply deficits in real time.
               </p>
             </div>
@@ -307,8 +307,8 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-civic-ivory flex items-center justify-center text-civic-forest border border-civic-neutral">
                 <ListOrdered className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-civic-forest">Rank Recovery</h3>
-              <p className="text-xs text-civic-charcoal/80 leading-relaxed">
+              <h3 className="text-lg font-bold text-civic-forest font-google">Rank Recovery</h3>
+              <p className="text-xs text-civic-charcoal/80 leading-relaxed font-google">
                 Prioritize emergency relief and agricultural recovery resources based on cultivation evidence, vulnerability, and city impact.
               </p>
             </div>
@@ -326,18 +326,18 @@ export default function LandingPage() {
             <ShieldCheck className="w-6 h-6" />
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-civic-forest leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-civic-forest leading-tight font-google">
             PROTECTING A CITY'S FOOD SUPPLY STARTS OUTSIDE THE CITY.
           </h2>
 
-          <p className="text-base sm:text-lg text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed">
+          <p className="text-base sm:text-lg text-civic-charcoal/80 max-w-2xl mx-auto font-normal leading-relaxed font-google">
             Access the AgriGuard-AI Command Center to analyze regional food security and make data-driven emergency management decisions.
           </p>
 
           <div className="pt-2">
             <Link
               href="/command-center"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-civic-forest hover:bg-civic-leaf text-white font-semibold rounded-xl text-base transition-all duration-200 shadow-md transform hover:-translate-y-0.5"
             >
               <span>EXPLORE AGRIGUARD</span>
               <ArrowRight className="w-5 h-5" />

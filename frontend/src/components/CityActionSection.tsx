@@ -36,8 +36,8 @@ export default function CityActionSection() {
   return (
     <section className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-sm flex flex-col gap-5">
       <div className="border-b border-civic-neutral pb-3">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-civic-forest flex items-center gap-2 font-mono">
-          <span>🏛️</span> City Action & Decision Support
+        <h3 className="text-base font-bold uppercase tracking-wider text-civic-forest flex items-center gap-2 font-google">
+          <span>🏛️</span> City Action &amp; Decision Support
         </h3>
         <p className="text-xs text-civic-charcoal/70 mt-1">
           Operational framework translating platform risk intelligence into targeted municipal response.
@@ -62,7 +62,7 @@ export default function CityActionSection() {
                 <h4 className="text-sm font-bold text-civic-forest mb-1">{act.title}</h4>
                 <p className="text-xs text-civic-charcoal/80 leading-relaxed font-sans">{act.desc}</p>
               </div>
-              <div className="text-[10px] text-civic-charcoal/60 font-mono pt-2 border-t border-civic-neutral">
+              <div className="text-xs text-civic-charcoal/70 font-bold font-google pt-2 border-t border-civic-neutral">
                 Decision Support Output
               </div>
             </div>

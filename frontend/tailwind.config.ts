@@ -10,23 +10,32 @@ const config: Config = {
     extend: {
       colors: {
         civic: {
-          ivory: "#F7F5EE",
-          forest: "#14532D",
-          leaf: "#3F7D4A",
-          sage: "#8FAF8B",
-          saffron: "#D99A2B",
-          terracotta: "#D65A3A",
-          terra: "#D65A3A",
-          red: "#B42318",
-          teal: "#168A8A",
-          charcoal: "#26332B",
-          neutral: "#EAE7DC",
-          card: "#FFFFFF",
-          white: "#FFFFFF"
+          // A warmer, earthy off-white/beige tone replacing stark white
+          ivory: "#f3efe6",
+          // Muted, earthy village-like greens replacing bright digital greens
+          forest: "#2d4a36",
+          leaf: "#4b7156",
+          sage: "#93a897",
+          // Warmer natural accents (mustard/clay)
+          saffron: "#cf8b2b",
+          terracotta: "#c85f46",
+          terra: "#c85f46",
+          red: "#b43a29",
+          teal: "#2b7c7c",
+          // Warmer, softer dark for text instead of harsh black
+          charcoal: "#2e2c29",
+          neutral: "#e3dfd3",
+          // Cards use a very light warm tone instead of pure white
+          card: "#faf8f2",
+          white: "#faf8f2"
         }
       },
+      fontFamily: {
+        google: ['"Google Sans"', '"Open Sans"', 'sans-serif'],
+      },
       boxShadow: {
-        civic: "0 4px 20px -2px rgba(38, 51, 43, 0.08), 0 2px 6px -1px rgba(38, 51, 43, 0.04)"
+        // Softer, more natural drop shadow, eliminating glowy digital feel
+        civic: "0 6px 16px -4px rgba(46, 44, 41, 0.05), 0 4px 6px -2px rgba(46, 44, 41, 0.02)"
       }
     },
   },

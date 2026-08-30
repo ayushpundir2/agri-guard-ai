@@ -107,7 +107,7 @@ export default function GeminiAnalystPanel({
   };
 
   return (
-    <div className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-civic flex flex-col gap-5 font-mono text-xs" style={{ minHeight: 'calc(100vh - 200px)' }}>
+    <div className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-civic flex flex-col gap-5 font-mono text-xs" style={{ height: '580px' }}>
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-civic-neutral pb-4 gap-3">
         <div className="flex items-center gap-3">
@@ -136,7 +136,7 @@ export default function GeminiAnalystPanel({
       </div>
 
       {/* Suggested Quick Questions */}
-      <div className="space-y-2">
+      <div className="space-y-2 shrink-0">
         <span className="text-[10px] uppercase font-bold text-civic-charcoal/60 tracking-wider font-sans block">
           Suggested Intelligence Inquiries:
         </span>
@@ -156,9 +156,15 @@ export default function GeminiAnalystPanel({
       </div>
 
       {/* Conversation Thread - scrollable, grows to fill available space */}
-      <div className="flex-1 overflow-y-auto" style={{ minHeight: '280px' }}>
+      <div 
+        className="flex-1 overflow-y-auto pr-2 space-y-4"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#e3dfd3 transparent'
+        }}
+      >
         {turns.map((turn) => (
-            <div key={turn.id} className="space-y-3 border-t border-civic-neutral/60 pt-4 font-sans">
+            <div key={turn.id} className="space-y-3 pt-2 font-sans">
               {/* User Question */}
               <div className="flex items-start gap-3 bg-civic-ivory p-3.5 rounded-xl border border-civic-neutral">
                 <span className="text-base">👤</span>
@@ -180,8 +186,8 @@ export default function GeminiAnalystPanel({
                 </div>
               )}
 
-              {/* Error State */}
-              {turn.error && !turn.loading && (
+              {/* Hard Error State (no fallback analysis available) */}
+              {turn.error && !turn.loading && !(turn.result?.analysis && (turn.result.analysis.summary || turn.result.analysis.reasoning)) && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-800">
                   <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
                   <div className="space-y-1">
@@ -192,8 +198,21 @@ export default function GeminiAnalystPanel({
               )}
 
               {/* Structured AI Answer */}
-              {turn.result?.analysis && (turn.result.analysis.summary || turn.result.analysis.reasoning) && !turn.loading && !turn.error && (
+              {turn.result?.analysis && (turn.result.analysis.summary || turn.result.analysis.reasoning) && !turn.loading && (
                 <div className="bg-civic-white border border-civic-neutral p-5 rounded-2xl shadow-xs space-y-4">
+                  {/* Fallback Mode Warning Banner */}
+                  {turn.error && (
+                    <div className="p-3 bg-civic-saffron/10 border border-civic-saffron/30 rounded-xl flex items-start gap-2.5 text-civic-charcoal/90">
+                      <AlertCircle className="w-4.5 h-4.5 text-civic-saffron shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <p className="font-bold text-xs text-civic-forest">Analyst Offline — Fallback Mode</p>
+                        <p className="text-[11px] leading-normal text-civic-charcoal/80">
+                          The live Gemini model returned an error ({turn.error}). Showing local rules-based simulation context instead.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Section 1: Executive Answer */}
                   <div className="space-y-1.5 bg-civic-ivory/60 p-3.5 rounded-xl border border-civic-neutral/60">
                     <div className="flex items-center gap-2 text-civic-forest font-mono text-[11px] font-bold uppercase tracking-wider">
