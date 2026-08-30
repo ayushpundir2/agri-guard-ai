@@ -71,7 +71,7 @@ Please analyze the question strictly using the provided context and system instr
 - "caveats": mandatory disclaimer about prototype data & administrative verification
 """
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
         headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [
