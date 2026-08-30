@@ -58,13 +58,13 @@ export default function Sidebar({ systemStatus = 'All Systems Operational' }: Si
               <Link
                 key={item.href}
                 href={item.href}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition ${
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl font-semibold text-sm transition ${
                   isActive
-                    ? 'bg-civic-forest text-white font-semibold shadow-sm'
+                    ? 'bg-civic-forest text-white shadow-sm'
                     : 'text-civic-charcoal/80 hover:text-civic-forest hover:bg-civic-ivory'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-civic-leaf'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-civic-leaf'}`} />
                 <span>{item.label}</span>
               </Link>
             );
