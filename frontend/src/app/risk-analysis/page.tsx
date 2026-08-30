@@ -51,9 +51,9 @@ export default function RiskAnalysisPage() {
       activeEventName={floodOverview?.active_event?.name}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold font-mono text-white">City Food-Supply Risk Workspace</h2>
-        <p className="text-xs text-slate-400 font-sans">
-          Evaluating multi-factor risk scores combining affected production loss, crop vulnerability, wholesale market exposure, and flood severity.
+        <h2 className="text-xl font-bold font-sans text-civic-forest">Risk Analysis — City Food-Supply Risk</h2>
+        <p className="text-xs text-civic-charcoal/80 font-sans">
+          Evaluating multi-factor risk scores combining affected production loss, crop vulnerability, and wholesale market exposure.
         </p>
       </div>
 

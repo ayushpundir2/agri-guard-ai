@@ -41,9 +41,9 @@ export default function RecoveryPage() {
       activeEventName={floodOverview?.active_event?.name}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold font-mono text-white">Agricultural Recovery Priority Workspace</h2>
-        <p className="text-xs text-slate-400 font-sans">
-          Ranked agricultural intervention areas prioritized by flood exposure, cultivation evidence, crop vulnerability, market importance, and production impact.
+        <h2 className="text-xl font-bold font-sans text-civic-forest">Recovery — Recovery Priorities</h2>
+        <p className="text-xs text-civic-charcoal/80 font-sans">
+          Ranked agricultural intervention areas prioritized by flood exposure, cultivation evidence, crop vulnerability, and market importance.
         </p>
       </div>
 

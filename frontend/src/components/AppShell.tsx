@@ -37,9 +37,8 @@ export default function AppShell({
           {/* Data Honesty Footer */}
           <footer className="mt-auto border-t border-civic-neutral pt-6 text-xs text-civic-charcoal/70 flex flex-col md:flex-row justify-between items-center gap-2 font-mono">
             <p className="text-civic-saffron font-medium">
-              <strong>Data Honesty Disclaimer:</strong> Illustrative prototype dataset & risk models — not official government predictions, legal land ownership, or market forecasts.
+              <strong>Data Honesty Disclaimer:</strong> Illustrative dataset & risk models — not official government predictions, legal land ownership, or market forecasts.
             </p>
-            <p>Fund My Crazy — &ldquo;Surprise Us!&rdquo; Competition Project</p>
           </footer>
         </main>
       </div>

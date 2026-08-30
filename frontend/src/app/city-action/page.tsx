@@ -27,8 +27,8 @@ export default function CityActionPage() {
       activeEventName={floodOverview?.active_event?.name}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold font-mono text-white">City Response & Action Framework</h2>
-        <p className="text-xs text-slate-400 font-sans">
+        <h2 className="text-xl font-bold font-sans text-civic-forest">City Action — Response & Recovery Actions</h2>
+        <p className="text-xs text-civic-charcoal/80 font-sans">
           Operational framework translating platform risk intelligence into targeted municipal field response.
         </p>
       </div>

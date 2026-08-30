@@ -82,9 +82,9 @@ export default function FoodMapPage() {
     >
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-bold font-mono text-white">Food-System Geospatial Intelligence Map</h2>
-          <p className="text-xs text-slate-400 font-sans mt-0.5">
-            Interactive GIS canvas rendering Pune&apos;s agricultural parcels, wholesale markets, supply links, and disaster inundation zones.
+          <h2 className="text-xl font-bold font-sans text-civic-forest">Food Map — Pune Food Network</h2>
+          <p className="text-xs text-civic-charcoal/80 font-sans mt-0.5">
+            Interactive GIS canvas rendering agricultural parcels, wholesale markets, supply links, and inundation overlays.
           </p>
         </div>
 

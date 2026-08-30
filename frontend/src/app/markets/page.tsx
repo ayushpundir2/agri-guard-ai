@@ -41,9 +41,9 @@ export default function MarketsPage() {
       activeEventName={floodOverview?.active_event?.name}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold font-mono text-white">Wholesale Market Supply Intelligence</h2>
-        <p className="text-xs text-slate-400 font-sans">
-          Monitoring Pune&apos;s primary APMC hubs, regional collection yards, handled crop categories, and disaster exposure scores.
+        <h2 className="text-xl font-bold font-sans text-civic-forest">Markets — Market Exposure</h2>
+        <p className="text-xs text-civic-charcoal/80 font-sans">
+          Monitoring wholesale APMC hubs, regional yards, handled crop categories, and exposure metrics.
         </p>
       </div>
 
