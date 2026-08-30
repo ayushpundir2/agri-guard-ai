@@ -93,15 +93,24 @@ class ExceptionCORSWrapper(BaseHTTPMiddleware):
             origin = request.headers.get("origin")
             
             headers = {}
+            # Fallback to "*" if not explicitly allowed but "*" is in CORS_ORIGINS
             if origin and (origin in settings.CORS_ORIGINS or "*" in settings.CORS_ORIGINS):
                 headers["Access-Control-Allow-Origin"] = origin
-                headers["Access-Control-Allow-Credentials"] = "true"
-                headers["Access-Control-Allow-Methods"] = "*"
-                headers["Access-Control-Allow-Headers"] = "*"
+            elif "*" in settings.CORS_ORIGINS:
+                headers["Access-Control-Allow-Origin"] = "*"
+                
+            headers["Access-Control-Allow-Credentials"] = "true"
+            headers["Access-Control-Allow-Methods"] = "*"
+            headers["Access-Control-Allow-Headers"] = "*"
                 
             return JSONResponse(
                 status_code=500,
-                content={"error": str(exc), "type": type(exc).__name__, "db_init_log": init_log},
+                content={
+                    "error": str(exc),
+                    "type": type(exc).__name__,
+                    "db_init_log": init_log,
+                    "detail": "Unhandled exception captured by custom middleware"
+                },
                 headers=headers
             )
 
@@ -126,7 +135,12 @@ async def global_exception_handler(request: Request, exc: Exception):
     headers = {}
     if origin and (origin in settings.CORS_ORIGINS or "*" in settings.CORS_ORIGINS):
         headers["Access-Control-Allow-Origin"] = origin
-        headers["Access-Control-Allow-Credentials"] = "true"
+    elif "*" in settings.CORS_ORIGINS:
+        headers["Access-Control-Allow-Origin"] = "*"
+        
+    headers["Access-Control-Allow-Credentials"] = "true"
+    headers["Access-Control-Allow-Methods"] = "*"
+    headers["Access-Control-Allow-Headers"] = "*"
 
     return JSONResponse(
         status_code=500,
