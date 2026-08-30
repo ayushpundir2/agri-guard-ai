@@ -38,9 +38,11 @@ export default function Sidebar({ systemStatus = 'All Systems Operational' }: Si
       {/* Brand Section */}
       <div>
         <Link href="/" className="flex items-center gap-3 px-2 py-3 border-b border-civic-neutral mb-6 group cursor-pointer">
-          <div className="p-2 rounded-xl bg-civic-forest text-white group-hover:bg-civic-leaf transition shadow-sm">
-            <span className="text-xl">🌾</span>
-          </div>
+          <img
+            src="/agriguard-emblem.png"
+            alt="AgriGuard Emblem"
+            className="w-8 h-8 object-contain shrink-0 group-hover:scale-105 transition-transform"
+          />
           <div>
             <h1 className="text-sm font-bold text-civic-forest tracking-tight">AgriGuard-AI</h1>
             <p className="text-[10px] text-civic-charcoal/70 font-medium">City Food Resilience Intelligence</p>

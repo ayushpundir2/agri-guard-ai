@@ -21,19 +21,13 @@ export default function LandingPage() {
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 bg-civic-ivory/90 backdrop-blur-md border-b border-civic-neutral px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-civic-forest flex items-center justify-center text-white font-bold text-lg shadow-xs">
-              🌾
-            </div>
-            <div>
-              <span className="text-base font-extrabold tracking-tight text-civic-forest block leading-none">
-                AgriGuard-AI
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-civic-leaf">
-                Food Resilience Intelligence
-              </span>
-            </div>
-          </div>
+          <Link href="/" className="flex items-center gap-3">
+            <img
+              src="/agriguard-logo.png"
+              alt="AgriGuard-AI Logo"
+              className="h-10 w-auto object-contain shrink-0"
+            />
+          </Link>
 
           <Link
             href="/command-center"
@@ -355,7 +349,12 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-civic-neutral text-xs font-mono text-civic-charcoal/60 bg-civic-white">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/agriguard-emblem.png"
+              alt="AgriGuard Emblem"
+              className="w-5 h-5 object-contain shrink-0"
+            />
             <span className="font-bold text-civic-forest">AgriGuard-AI</span>
             <span>• Civic Food System Intelligence</span>
           </div>

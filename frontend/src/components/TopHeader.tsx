@@ -42,13 +42,18 @@ export default function TopHeader({ disasterStatus, activeEventName }: TopHeader
 
   return (
     <header className="h-16 bg-civic-card border-b border-civic-neutral px-6 flex items-center justify-between z-30 select-none shadow-xs">
-      {/* LEFT: Title */}
+      {/* LEFT: Title & Logo */}
       <div className="flex items-center gap-3">
-        <div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <img
+            src="/agriguard-emblem.png"
+            alt="AgriGuard Logo"
+            className="w-7 h-7 object-contain shrink-0 group-hover:scale-105 transition-transform"
+          />
           <h2 className="text-sm font-bold text-civic-forest tracking-tight font-sans">
             {t('nav.title', 'AgriGuard Civic Operations')}
           </h2>
-        </div>
+        </Link>
       </div>
 
       {/* CENTER / RIGHT: Location + Language + Status + User */}

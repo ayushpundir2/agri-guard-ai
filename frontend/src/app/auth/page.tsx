@@ -74,11 +74,14 @@ function AuthForm() {
   return (
     <div className="my-auto max-w-md w-full mx-auto bg-civic-card border border-civic-neutral p-8 rounded-3xl shadow-xl space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="inline-flex p-3 rounded-2xl bg-civic-forest text-white shadow-md mb-2">
-          <ShieldCheck className="w-6 h-6" />
+      <div className="text-center space-y-3">
+        <div className="flex justify-center mb-1">
+          <img
+            src="/agriguard-logo.png"
+            alt="AgriGuard-AI Logo"
+            className="h-16 w-auto object-contain"
+          />
         </div>
-        <h2 className="text-xl font-extrabold text-civic-forest font-sans">AGRIGUARD</h2>
         <p className="text-xs text-civic-charcoal/70 font-sans">
           Access the city food-system intelligence platform.
         </p>
@@ -245,8 +248,11 @@ export default function AuthPage() {
       {/* Top Navbar */}
       <nav className="max-w-6xl w-full mx-auto flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-3">
-          <span className="text-2xl">🌾</span>
-          <span className="text-sm font-bold font-mono text-civic-forest tracking-tight">AgriGuard-AI</span>
+          <img
+            src="/agriguard-logo.png"
+            alt="AgriGuard-AI Logo"
+            className="h-8 w-auto object-contain shrink-0"
+          />
         </Link>
         <Link
           href="/"
