@@ -1,3 +1,4 @@
+from sqlalchemy import cast, String
 from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
 
@@ -96,7 +97,7 @@ class AIContextService:
         # 5. Inspected Entity Context (if parcel or market specified)
         if parcel_id:
             p_obj = db.query(AgriculturalParcel).filter(
-                (AgriculturalParcel.parcel_id == parcel_id) | (AgriculturalParcel.id.cast(str) == parcel_id)
+                (AgriculturalParcel.parcel_id == parcel_id) | (cast(AgriculturalParcel.id, String) == parcel_id)
             ).first()
             if p_obj:
                 p_rec = db.query(RecoveryPriority).filter(
@@ -130,7 +131,7 @@ class AIContextService:
 
         elif market_id:
             m_obj = db.query(Market).filter(
-                (Market.market_id == market_id) | (Market.id.cast(str) == market_id)
+                (Market.market_id == market_id) | (cast(Market.id, String) == market_id)
             ).first()
             if m_obj:
                 ma = db.query(MarketRiskAssessment).filter(
