@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from sqlalchemy import text
@@ -82,6 +83,31 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+class ExceptionCORSWrapper(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        try:
+            response = await call_next(request)
+            return response
+        except Exception as exc:
+            init_log = getattr(request.app.state, "db_init_log", {})
+            origin = request.headers.get("origin")
+            
+            headers = {}
+            if origin and (origin in settings.CORS_ORIGINS or "*" in settings.CORS_ORIGINS):
+                headers["Access-Control-Allow-Origin"] = origin
+                headers["Access-Control-Allow-Credentials"] = "true"
+                headers["Access-Control-Allow-Methods"] = "*"
+                headers["Access-Control-Allow-Headers"] = "*"
+                
+            return JSONResponse(
+                status_code=500,
+                content={"error": str(exc), "type": type(exc).__name__, "db_init_log": init_log},
+                headers=headers
+            )
+
+# First add the custom exception wrapper so it sits "inside" the CORSMiddleware
+app.add_middleware(ExceptionCORSWrapper)
+
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
@@ -91,12 +117,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Keep standard exception handler for any endpoints that throw but get caught by router
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     init_log = getattr(app.state, "db_init_log", {})
+    
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin and (origin in settings.CORS_ORIGINS or "*" in settings.CORS_ORIGINS):
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+
     return JSONResponse(
         status_code=500,
-        content={"error": str(exc), "type": type(exc).__name__, "db_init_log": init_log}
+        content={"error": str(exc), "type": type(exc).__name__, "db_init_log": init_log},
+        headers=headers
     )
 
 # Include routers

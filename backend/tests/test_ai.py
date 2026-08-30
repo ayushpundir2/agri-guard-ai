@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -7,6 +7,22 @@ from app.services.gemini_service import GeminiService
 from app.services.ai_context_service import AIContextService
 
 client = TestClient(app)
+
+def test_cors_headers_on_exception():
+    # Force an unhandled exception in the endpoint
+    with patch.object(AIContextService, 'build_system_context', side_effect=Exception("Simulated unexpected failure")):
+        headers = {
+            "Origin": "http://localhost:3000"
+        }
+        response = client.post("/api/ai/analyze", json={"question": "Test"}, headers=headers)
+        
+        # Should be a 500
+        assert response.status_code == 500
+        
+        # CORS headers MUST be present even on a 500 response
+        assert "access-control-allow-origin" in response.headers
+        assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
+        assert response.json()["error"] == "Simulated unexpected failure"
 
 def test_empty_question_validation():
     response = client.post("/api/ai/analyze", json={"question": ""})
