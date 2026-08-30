@@ -82,7 +82,7 @@ export default function GeminiAnalystPanel({
               ...t,
               loading: false,
               result: res,
-              error: res?.error || (!res?.analysis ? 'Information is currently unavailable.' : null)
+              error: res?.error || (!res?.analysis?.summary && !res?.analysis?.reasoning ? 'Information is currently unavailable.' : null)
             };
           }
           return t;
@@ -95,7 +95,7 @@ export default function GeminiAnalystPanel({
             return {
               ...t,
               loading: false,
-              error: 'Failed to connect to AgriGuard Analyst service.'
+              error: err.message || 'Failed to connect to AgriGuard Analyst service.'
             };
           }
           return t;
@@ -107,7 +107,7 @@ export default function GeminiAnalystPanel({
   };
 
   return (
-    <div className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-civic flex flex-col gap-6 font-mono text-xs">
+    <div className="bg-civic-card border border-civic-neutral p-6 rounded-2xl shadow-civic flex flex-col gap-5 font-mono text-xs" style={{ minHeight: 'calc(100vh - 200px)' }}>
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-civic-neutral pb-4 gap-3">
         <div className="flex items-center gap-3">
@@ -155,10 +155,9 @@ export default function GeminiAnalystPanel({
         </div>
       </div>
 
-      {/* Conversation Thread */}
-      {turns.length > 0 && (
-        <div className="space-y-6 pt-2">
-          {turns.map((turn) => (
+      {/* Conversation Thread - scrollable, grows to fill available space */}
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: '280px' }}>
+        {turns.map((turn) => (
             <div key={turn.id} className="space-y-3 border-t border-civic-neutral/60 pt-4 font-sans">
               {/* User Question */}
               <div className="flex items-start gap-3 bg-civic-ivory p-3.5 rounded-xl border border-civic-neutral">
@@ -193,7 +192,7 @@ export default function GeminiAnalystPanel({
               )}
 
               {/* Structured AI Answer */}
-              {turn.result?.analysis && !turn.loading && (
+              {turn.result?.analysis && (turn.result.analysis.summary || turn.result.analysis.reasoning) && !turn.loading && !turn.error && (
                 <div className="bg-civic-white border border-civic-neutral p-5 rounded-2xl shadow-xs space-y-4">
                   {/* Section 1: Executive Answer */}
                   <div className="space-y-1.5 bg-civic-ivory/60 p-3.5 rounded-xl border border-civic-neutral/60">
@@ -242,9 +241,8 @@ export default function GeminiAnalystPanel({
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* Input Form */}
       <form

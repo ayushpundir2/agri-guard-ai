@@ -444,10 +444,39 @@ export async function askGeminiAnalyst(
       }),
       cache: 'no-store'
     });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    return await res.json();
-  } catch (err) {
+    
+    // Attempt to read the response as JSON even if status is not OK (e.g. 500)
+    // because the backend might return structured JSON with an "error" key.
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      data = null;
+    }
+
+    if (!res.ok) {
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
+      throw new Error(`Status ${res.status}`);
+    }
+    
+    return data;
+  } catch (err: any) {
     console.error('Failed to query Gemini Analyst:', err);
-    return null;
+    // Return a structured response that indicates failure rather than just null,
+    // so the component can display the actual error message.
+    return {
+      success: false,
+      disaster_status: "UNKNOWN",
+      analysis: {
+        summary: "",
+        reasoning: "",
+        recommended_actions: [],
+        caveats: ""
+      },
+      error: err.message || "Failed to query Gemini Analyst",
+      calculated_at: new Date().toISOString()
+    };
   }
 }
